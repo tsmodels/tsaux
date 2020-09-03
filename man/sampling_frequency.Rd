@@ -1,0 +1,30 @@
+\name{sampling_frequency}
+\alias{sampling_frequency}
+\title{
+Infers the sampling frequency of a time series
+}
+\description{
+Given either a vector of time indices or an xts object will infer the
+sampling frequency.
+}
+\usage{
+sampling_frequency(x)
+}
+\arguments{
+\item{x}{
+Either an xts object (or one which has an index attribute) else
+a vector of class Date or POSIX based time index.
+}
+}
+\value{
+The sampling period (character).
+}
+\author{
+Alexios Galanos
+}
+
+\examples{
+w <- sampling_frequency(seq(as.Date("2010-01-01"), as.Date("2011-01-01"), by="weeks"))
+m <- sampling_frequency(seq(as.POSIXct("2010-01-01 12:00:00"),
+as.POSIXct("2010-01-02 12:00:00"), by="15 mins"))
+}
