@@ -9,7 +9,7 @@ Authors@R: c(person("Alexios", "Galanos", role = c("aut", "cre"),
     person("Keith","O'Hara",role="ctb",
     email="kth.ohr@gmail.com"))
 Maintainer: alexios galanos <alexios@4dscape.com>
-Description: General purpose calendar and auxilliary functions.
+Description: General purpose calendar and auxiliary functions.
 Imports: methods, zoo, xts, lubridate, car
 License: GPL-2
 Encoding: UTF-8
