@@ -1,4 +1,4 @@
-# tsaux &nbsp; [![Build Status](https://travis-ci.org/tsmodels/tsaux.svg?branch=master)](https://travis-ci.org/tsmodels/tsaux) [![Build status](https://ci.appveyor.com/api/projects/status/github/tsmodels/tsaux?branch=master)](https://ci.appveyor.com/project/kthohr/tsaux/branch/master)
+# tsaux &nbsp; [![R](https://github.com/tsmodels/tsaux/workflows/R/badge.svg)](https://github.com/tsmodels/tsaux/actions?query=workflow%3AR) [![Build Status](https://travis-ci.org/tsmodels/tsaux.svg?branch=master)](https://travis-ci.org/tsmodels/tsaux) [![Build status](https://ci.appveyor.com/api/projects/status/github/tsmodels/tsaux?branch=master)](https://ci.appveyor.com/project/kthohr/tsaux/branch/master)
 General purpose calendar and auxiliary functions for **tsmodels** packages.
 
 ## Installation
