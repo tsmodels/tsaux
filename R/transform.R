@@ -98,11 +98,6 @@ box_cox_inverse <- function(y, lambda = 1)
 
 box_cox_transform <- function(y, lambda = 1)
 {
-    
-    if (lambda == 1) {
-        attr(y, "lambda") <- 1
-        return(y)
-    }
     if (lambda < 0) {
         y[y < 0] <- NA
     }
