@@ -127,5 +127,6 @@ pinball <- function(actual, distribution, q = 0.95){
 crps <- function(actual, distribution) 
 {
     metric <- crps_sample(as.numeric(actual), t(distribution))
+    metric <- mean(metric, na.rm = TRUE)
     return(metric)
 }
