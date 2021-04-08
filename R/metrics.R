@@ -24,7 +24,16 @@ mslre <- function(actual, predicted)
     predicted <- as.numeric(predicted)
     n <- length(actual)
     if (length(predicted) != n) stop("\nactual and predicted must be of the same length.")
-    metric <- sum(log(predicted/actual)^2)/n
+    ap <- actual/predicted
+    if (any((ap) <= 0)) {
+        if (all(ap <= 0)) {
+            return(NA)
+        } else {
+            ap <- ap[which(ap > 0)]
+        }
+        n <- length(ap)
+    }
+    metric <- sum(log(ap)^2)/n
     return(metric)
 }
 
@@ -118,8 +127,10 @@ wse <- function(actual, predicted, weights)
 }
 
 pinball <- function(actual, distribution, q = 0.95){
-    qtile <- quantile(distribution, q)
-    loss <- ifelse(actual >= qtile, q * (actual - qtile), (1 - q) * (qtile - actual))
+    qtile <- apply(distribution, 2, quantile, q)
+    loss <- rep(0, length(actual))
+    loss[actual >= qtile] <- q * (actual - qtile)
+    loss[actual < qtile] <- (1 - q) * (qtile - actual)
     metric <- 2 * mean(loss, na.rm = TRUE)
     return(metric)
 }

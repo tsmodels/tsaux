@@ -8,6 +8,7 @@
 \alias{wape}
 \alias{wslre}
 \alias{wse}
+\alias{pinball}
 \alias{crps}
 \title{
 Forecast Performance Metrics
@@ -25,6 +26,7 @@ wape(actual, predicted, weights)
 wslre(actual, predicted, weights)
 wse(actual, predicted, weights)
 crps(actual, distribution)
+pinball(actual, distribution, q = 0.95)
 }
 \arguments{
 \item{actual}{
@@ -55,6 +57,9 @@ The forecast distribution (returned in the distribution slot of the prediction
 object). This is used in the continuous ranked probability score (crps) of
 Gneiting et al (2005), and calculated using the function from the 
 scoringRules package.
+}
+\item{q}{
+The quantile for evaluating the pinball loss function.
 }
 \item{weights}{
 A vector of weights for generating weighted metrics. If the actual
