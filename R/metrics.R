@@ -117,9 +117,15 @@ wse <- function(actual, predicted, weights)
     return(weighted_metric)
 }
 
-# pinball <- function(actual, lower, upper, q){
-#
-#     x <- ifelse(actual - q < 0, 1, 0)
-#     score <- (actual - forecast) * (tau - indicator)
-#     return(score)
-# }
+pinball <- function(actual, distribution, q = 0.95){
+    qtile <- quantile(distribution, q)
+    loss <- ifelse(actual >= qtile, q * (actual - qtile), (1 - q) * (qtile - actual))
+    metric <- 2 * mean(loss, na.rm = TRUE)
+    return(metric)
+}
+
+crps <- function(actual, distribution) 
+{
+    metric <- crps_sample(as.numeric(actual), t(distribution))
+    return(metric)
+}
