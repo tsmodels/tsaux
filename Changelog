@@ -1,0 +1,6 @@
+# 2021-04-20 v0.1.2 [AG]
+- Added ability to have missing values in tslinear (and predict missingness) as
+a requirements for implementing ETS with missing values (tslinear provides
+starting values for the states).
+- Replaced stl with stlplus to allow missing values for the multivariate
+Box Cox transformation (which required deasonalized values).

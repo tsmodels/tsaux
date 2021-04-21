@@ -17,7 +17,7 @@ box_cox <- function(lambda = NA, lower = 0, upper = 1.5, multivariate = FALSE)
             if (length(ixs) > 0) {
                 for (i in ixs) {
                     tmp <- ts(as.numeric(y[,i]), frequency = frequency[i])
-                    tmp <- tmp - stl(tmp, "periodic")$time.series[,"seasonal"]
+                    tmp <- tmp - stlplus(tmp, s.window = "periodic", n.p = frequency)$data$seasonal
                     ynew[,i] <- as.numeric(tmp)
                 }
             }

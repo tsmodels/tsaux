@@ -2,6 +2,12 @@
 tslinear = function(y, trend = FALSE, seasonal = FALSE, xreg = NULL, frequency = 1, ...)
 {
     if (NCOL(y) != 1) stop("\nonly univariate series allowed for y")
+    good <- rep(1, NROW(y))
+    has_missing <- FALSE
+    if (any(is.na(y))) {
+        good[which(is.na(y))] <- 0
+        has_missing <- TRUE
+    }
     y <- matrix(coredata(y), ncol = 1)
     colnames(y) <- "y"
     if (trend) {
@@ -33,12 +39,17 @@ tslinear = function(y, trend = FALSE, seasonal = FALSE, xreg = NULL, frequency =
     colnames(data) <- make.names(colnames(data))
     form <- as.formula(paste0("y~",paste0(colnames(data)[-1],collapse = "+")))
     fit <- lm(form, data = as.data.frame(data), na.action = na.exclude)
+    fitted_value <- fitted(fit)
+    if (has_missing) {
+        p <- predict(fit, newdata = as.data.frame(data[which(good == 0),-1,drop = FALSE]))
+        fitted_value[which(good == 0)] <- p
+    }
     fit$data <- data
     responsevar <- deparse(form[[2]])
     fit$residuals <- residuals(fit)
     fit$x <- fit$residuals
     fit$x[!is.na(fit$x)] <- model.frame(fit)[, responsevar]
-    fit$fitted.values <- fitted(fit)
+    fit$fitted.values <- fitted_value
     fit$method <- "Linear regression model"
     class(fit) <- c("tslinear", class(fit))
     return(fit)
