@@ -4,6 +4,13 @@ mape <- function(actual, predicted)
     predicted <- as.numeric(predicted)
     n <- length(actual)
     if (length(predicted) != n) stop("\nactual and predicted must be of the same length.")
+    if (any(is.na(actual))) {
+        exc <- which(is.na(actual))
+        actual <- actual[-exc]
+        predicted <- predicted[-exc]
+    }
+    n <- length(actual)
+    if (n == 0) return(NA)
     metric <- sum(abs((actual - predicted)/actual))/n
     return(metric)
 }
@@ -14,6 +21,13 @@ bias <- function(actual, predicted)
     predicted <- as.numeric(predicted)
     n <- length(actual)
     if (length(predicted) != n) stop("\nactual and predicted must be of the same length.")
+    if (any(is.na(actual))) {
+        exc <- which(is.na(actual))
+        actual <- actual[-exc]
+        predicted <- predicted[-exc]
+    }
+    n <- length(actual)
+    if (n == 0) return(NA)
     metric <- sum((predicted - actual)/abs(actual))/n
     return(metric)
 }
@@ -24,6 +38,14 @@ mslre <- function(actual, predicted)
     predicted <- as.numeric(predicted)
     n <- length(actual)
     if (length(predicted) != n) stop("\nactual and predicted must be of the same length.")
+    if (any(is.na(actual))) {
+        exc <- which(is.na(actual))
+        actual <- actual[-exc]
+        predicted <- predicted[-exc]
+    }
+    n <- length(actual)
+    if (n == 0) return(NA)
+    
     ap <- actual/predicted
     if (any((ap) <= 0)) {
         if (all(ap <= 0)) {
@@ -42,6 +64,16 @@ mase <- function(actual, predicted, original_series = NULL, frequency = 1)
     actual <- as.numeric(actual)
     predicted <- as.numeric(predicted)
     original_series <- as.numeric(original_series)
+    if (any(is.na(actual))) {
+        exc <- which(is.na(actual))
+        actual <- actual[-exc]
+        predicted <- predicted[-exc]
+    }
+    if (length(actual) == 0) return(NA)
+    if (any(is.na(original_series))) {
+        original_series <- original_series[-which(is.na(original_series))]
+    }
+    if (length(original_series) == 0) return(NA)
     n <- length(actual)
     if (length(predicted) != n) stop("\nactual and predicted must be of the same length.")
     if (is.null(original_series)) stop("\noriginal_series cannot be NULL for mase calculation.")
@@ -59,9 +91,19 @@ mis <- function(actual, lower, upper, alpha)
     lower <- as.numeric(lower)
     upper <- as.numeric(upper)
     alpha <- as.numeric(alpha)[1]
+    if (any(is.na(actual))) {
+        exc <- which(is.na(actual))
+        actual <- actual[-exc]
+        lower <- lower[-exc]
+        upper <- upper[-exc]
+    }
     n <- length(actual)
-    if (length(lower) != n | length(upper) != n ) stop("\nactual, lower and upper must be of the same length.")
-    metric <- (sum(upper - lower) + 2/alpha * (sum((lower - actual) * (actual < lower)) + sum((actual - upper) * (actual > upper))))/n
+    if (n == 0) {
+        metric <- as.numeric(NA)        
+    } else {
+        if (length(lower) != n | length(upper) != n ) stop("\nactual, lower and upper must be of the same length.")
+        metric <- (sum(upper - lower) + 2/alpha * (sum((lower - actual) * (actual < lower)) + sum((actual - upper) * (actual > upper))))/n
+    }
     return(metric)
 }
 

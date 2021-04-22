@@ -4,3 +4,5 @@ a requirements for implementing ETS with missing values (tslinear provides
 starting values for the states).
 - Replaced stl with stlplus to allow missing values for the multivariate
 Box Cox transformation (which required deasonalized values).
+- Added more checks for missing values in metrics.
+- ToDo: add more checks in the metrics (e.g. crps) and weighted metrics
