@@ -39,6 +39,6 @@ calendar_eoq <- function(date) {
 
 calendar_eoy <- function(date) {
     if (!is(date, "Date")) date <- as.Date(date)
-    result <- calendar_eom(as.Date(paste0(year(date),"12-01")))
+    result <- calendar_eom(as.Date(paste0(year(date),"-12-01")))
     return(result)
 }
