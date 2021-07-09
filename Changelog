@@ -1,3 +1,7 @@
+# 2021-07-08 v0.1.3 [AG]
+- Added the auto_regressors function to the package for automatic detection
+of outliers, trend breaks and temporary changes (wrapper for tso function of
+tsoutliers package).
 # 2021-04-20 v0.1.2 [AG]
 - Added ability to have missing values in tslinear (and predict missingness) as
 a requirements for implementing ETS with missing values (tslinear provides
