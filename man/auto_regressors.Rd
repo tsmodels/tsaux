@@ -26,7 +26,8 @@ will be turned off in the auto.arima function.
 An optional xts object of known regressors to include in the auto.arima estimation.
 }
 \item{h}{
-An optional value for the forecast horizon (is planning to use for prediction).
+An optional value for the forecast horizon (if planning to also use for 
+prediction).
 }
 \item{forc_dates}{
 An optional vector of Date to be used for indexing the series when h is not NULL.
