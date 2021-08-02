@@ -1,3 +1,6 @@
+# 2021-08-01 v0.1.4 [AG]
+- Added the UC as an option in the auto_regressors function, based on the
+UComp package. This is much faster and more stable than the tso function.
 # 2021-07-08 v0.1.3 [AG]
 - Added the auto_regressors function to the package for automatic detection
 of outliers, trend breaks and temporary changes (wrapper for tso function of
