@@ -91,6 +91,7 @@ library(xts)
 set.seed(200)
 y = cumprod(c(100,(1+rnorm(100,0.01, 0.04))))
 y = xts(y, as.Date(1:101, origin = as.Date("2000-01-01")))
+yclean = y
 outlier1 = rep(0, 101)
 outlier1[20] = 0.35
 outlier2 = rep(0, 101)
@@ -103,4 +104,8 @@ x = auto_regressors(y, frequency = 1, sampling = "days", h = 20,
 check.rank = TRUE, discard.cval = 4)
 head(x$xreg)
 tail(x$xreg)
+min(which(x$xreg[,1]==1))
+min(which(x$xreg[,2]==1))
+plot(as.numeric(y), type = "l", ylab = "")
+lines(as.numeric(yclean) + (x$xreg \%*\% x$init)[1:101], col = 2)
 }
