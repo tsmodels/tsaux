@@ -57,15 +57,15 @@ used with additive outliers having a filter value of 0, trend changes a value of
 1, and temporary changes have value between 0 and 1.
 The routine first interpolates any missing values, followed by an optional Box
 Cox transformation, and then elimination (and identification) of any outliers 
-during the first pass. The cleaned series is then run through an stl filter
-in order to deseasonalize the data (with multiple seasonality supported), after
-which the deseasonlized series is passed to the tso function where any additive
-outliers (AO), temporary shifts (TC) or level shift (LS) are identified. Additive
-outliers from this stage are added to any identified outliers from the initial
-stage. For each regressor, initial parameter values are returned together with the
-regressor matrix which should be passed to the estimation routine. This is 
-critically important since in the absence of good parameter scaling, initial value
-are key to good convergence.
+during the first pass. The cleaned series is then run through an stl filter (if
+any frequency is greater than 1) in order to deseasonalize the data (with 
+multiple seasonality supported), after which the deseasonlized series is passed 
+to the tso function where any additive outliers (AO), temporary shifts (TC) or 
+level shift (LS) are identified. Additive outliers from this stage are added to 
+any identified outliers from the initial stage. For each regressor, initial 
+parameter values are returned together with the regressor matrix which should be 
+passed to the estimation routine. This is critically important since in the 
+absence of good parameter scaling, initial values are key to good convergence.
 Care should be taken with regards to any automatic Box Cox parameter estimation. 
 In the presence of large outliers or level shifts, this is likely to be badly
 estimated which is why we do not allow automatic calculation of this, but instead
