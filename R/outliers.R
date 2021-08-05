@@ -1,127 +1,117 @@
-auto_regressors <- function(y, frequency = 1, lambda = NULL, xreg = NULL, h = NULL, forc_dates = NULL, use = c("UC","tso"), args.tsmethod = list(), ...)
+auto_regressors <- function(y, frequency = 1, lambda = NULL, forc_dates = NULL, sampling = NULL, h = 0, 
+                            stlm_opts = list(etsmodel = "AAN"), auto_arima_opts = list(max.p = 1, max.q = 1, d = 1, allowdrift = FALSE), ...)
 {
-    if (!is.xts(y)) stop("\ny must be an object of class xts")
-    if (NCOL(y) > 1) stop("\nonly univariate time series handled.")
-    frequency <- as.integer(abs(frequency[1]))
-    if (!is.null(h)) {
-        h <- as.integer(abs(h))
-        if (is.null(forc_dates)) {
-            s <- sampling_frequency(index(y))
-            forc_dates <- future_dates(tail(index(y),1), s, h)
-        } else {
-            if (length(forc_dates) != h) stop("\nforc_dates lenth must equal h")
+    # missing values initial
+    if (h > 0) {
+        if (is.null(sampling) & is.null(forc_dates)) {
+            stop("\nh>0 but neither forc_dates or the sampling frequency of the data has been provided.")
         }
+        if (is.null(forc_dates)) {
+            forc_dates <- future_dates(tail(index(y),1), frequency = sampling, n = h)
+        }
+        newindex <- c(index(y), forc_dates)
+    } else {
+        newindex <- index(y) 
     }
+    if (any(is.na(y))) {
+        y <- xts(na.interp(ts(y, frequency = frequency[1])), index(y))
+    }
+    # box cox
     if (!is.null(lambda)) {
         y <- box_cox_transform(y, lambda = lambda)
     }
-    use <- match.arg(use[1], c("UC","tso"))
-    oxreg <- ma <- ar <- NULL
-    if (use == "UC") {
-        arglist <- list(...)
-        if (is.null(arglist$model)) {
-            if (frequency > 1) {
-                arglist$model <- "?/equal/?"
-            } else {
-                arglist$model <- "?/none/?"
+    # outliers
+    out_proposal <- tsoutliers(ts(y, frequency = frequency[1]))
+    ynew <- y
+    init_pars <- NULL
+    
+    if (length(out_proposal$index) > 0) {
+        init_pars <- c(init_pars, ynew[out_proposal$index] - out_proposal$replacements)
+        names(init_pars) <- paste0("AO", out_proposal$index)
+        ynew[out_proposal$index] <- out_proposal$replacements
+        # identify the additive coefficient
+    }
+    # stlm
+    if (any(frequency > 1)) {
+        stlm_opts$y <- msts(as.numeric(ynew), ts.frequency = frequency[1], seasonal.periods = frequency)
+        smod <- do.call(stlm, args = stlm_opts, quote = TRUE)
+        ynew <- xts(seasadj(smod$stl), index(ynew))
+    }
+    tso_opts <- list()
+    scaler <- max(ynew)
+    tso_opts$y <- ts(as.numeric(ynew)/scaler, frequency = 1)
+    tso_opts$args.tsmethod <- auto_arima_opts
+    tso_opts <- c(tso_opts, list(...))
+    mod <- do.call(tso, args = tso_opts, quote = TRUE)
+    xreg <- mod$fit$xreg
+    aox <- NULL
+    tcx <- NULL
+    lsx <- NULL
+    oxreg <- NULL
+    if (length(out_proposal$index) > 0) {
+        aox <- c(aox, out_proposal$index)
+        names(aox) <- paste0("AO",out_proposal$index)
+    }
+    if (!is.null(xreg)) {
+        cnames <- colnames(xreg)
+        if (any(grepl("^AO", cnames))) {
+            init_pars <- c(init_pars, scaler * coef(mod$fit)[cnames[grepl("^AO",cnames)]])
+            aox <- c(aox, as.numeric(gsub("^AO","",cnames[grepl("^AO", cnames)])))
+        }
+        if (!is.null(aox)) {
+            aoxtmp <- xts(matrix(0, ncol = length(aox), nrow = length(newindex)), newindex)
+            colnames(aoxtmp) <- paste0("AO",aox)
+            for (i in 1:length(aox)) {
+                aoxtmp[aox[i],i] <- 1
             }
+            oxreg <- cbind(oxreg, aoxtmp)
         }
-        if (frequency == 1) {
-            arglist$periods <- NULL
-        } else {
-            if (is.null(arglist$periods)) {
-                arglist$periods <- frequency
+        if (any(grepl("^TC", cnames))) {
+            init_pars <- c(init_pars, scaler * coef(mod$fit)[cnames[grepl("^TC",cnames)]])
+            tcx <- c(tcx, as.numeric(gsub("^TC","",cnames[grepl("^TC", cnames)])))
+            xtmp <- xreg[,grepl("^TC", cnames), drop = FALSE]
+            tcxtmp <- xts(matrix(0, ncol = length(tcx), nrow = length(newindex)), newindex)
+            colnames(tcxtmp) <- paste0("TC",tcx)
+            for (i in 1:length(tcx)) {
+                delta <- xtmp[tcx[i] + 1, i]
+                z <- rep(0, length(newindex))
+                z[tcx[i]] <- 1
+                z <- filter(z, filter = delta, method = "recursive")
+                z <- as.numeric(z)
+                tcxtmp[,i] <- as.numeric(z)
             }
+            oxreg <- cbind(oxreg, tcxtmp)
         }
-        if (is.null(arglist$outlier)) {
-            arglist$outlier <- 3.5
-        }
-        arglist$y <- ts(as.numeric(y), frequency = frequency)
-        arglist$u <- xreg
-        arglist$h <- 0
-        model <- do.call(UC, args = arglist, quote = TRUE)
-        out <- model$comp
-        cnames <- colnames(out)
-        oxreg <- NULL
-        if (any(grepl("AO",cnames))) {
-            aoi <- which(grepl("AO",cnames))
-            tmp <- xts(matrix(0, ncol = length(aoi), nrow = nrow(y)), index(y))
-            colnames(tmp) <- cnames[aoi]
-            for (i in 1:length(aoi)) tmp[which(out[,aoi[i]] != 0), i] <- 1
-            if (!is.null(h)) {
-                newtmp <- xts(matrix(0, ncol = ncol(tmp), nrow = h), forc_dates)
-                colnames(newtmp) <- colnames(tmp)
-                tmp <- rbind(tmp, newtmp)
+        if (any(grepl("^LS", cnames))) {
+            init_pars <- c(init_pars, scaler * coef(mod$fit)[cnames[grepl("^LS",cnames)]])
+            lsx <- c(lsx, as.numeric(gsub("^LS","",cnames[grepl("^LS", cnames)])))
+            lsxtmp <- xts(matrix(0, ncol = length(lsx), nrow = length(newindex)), newindex)
+            colnames(lsxtmp) <- paste0("LS",lsx)
+            for (i in 1:length(lsx)) {
+                z <- rep(0, length(newindex))
+                z[lsx[i]:length(z)] <- 1
+                lsxtmp[,i] <- as.numeric(z)
             }
-            oxreg <- cbind(oxreg, tmp)
-        }
-        if (any(grepl("LS",cnames))) {
-            aoi <- which(grepl("LS",cnames))
-            tmp <- xts(matrix(0, ncol = length(aoi), nrow = nrow(y)), index(y))
-            colnames(tmp) <- cnames[aoi]
-            for (i in 1:length(aoi)) tmp[which(out[,aoi[i]] != 0), i] <- 1
-            if (!is.null(h)) {
-                newtmp <- xts(matrix(1, ncol = ncol(tmp), nrow = h), forc_dates)
-                colnames(newtmp) <- colnames(tmp)
-                tmp <- rbind(tmp, newtmp)
-            }
-            oxreg <- cbind(oxreg, tmp)
-        }
-        coefnames <-  as.vector(rownames(coef(model)))
-        if (any(grepl("AR\\([0-9]\\)",coefnames))) {
-            ar <- length(which(grepl("AR\\([0-9]\\)",coefnames)))
-        }
-        if (any(grepl("MA\\([0-9]\\)",coefnames))) {
-            ma <- length(which(grepl("MA\\([0-9]\\)",coefnames)))
+            oxreg <- cbind(oxreg, lsxtmp)
         }
     } else {
-        if (frequency == 1) seasonal <- FALSE else seasonal <- TRUE
-        yts <- ts(as.numeric(y), frequency = frequency)
-        args.tsmethod$seasonal <- seasonal
-        model <- tso(yts, args.tsmethod = args.tsmethod, xreg = coredata(xreg), ...)
-        if (!is.null(model$fit$xreg)) {
-            oxreg <- xts(model$fit$xreg, index(y))
-            cnames <- colnames(model$fit$xreg)
-            colnames(oxreg) <- cnames
-            if (any(cnames == "drift")) {
-                oxreg <- oxreg[,-which(cnames == "drift")]
-                if (NCOL(oxreg) == 0) return(NULL)
-                cnames <- colnames(oxreg)
+        if (!is.null(aox)) {
+            aoxtmp <- xts(matrix(0, ncol = length(aox), nrow = length(newindex)), newindex)
+            colnames(aoxtmp) <- paste0("AO",aox)
+            for (i in 1:length(aox)) {
+                aoxtmp[aox[i],i] <- 1
             }
-            if (!is.null(h)) {
-                oxreg <- rbind(oxreg, xts(matrix(as.numeric(NA), ncol = ncol(oxreg), nrow = h), forc_dates))
-                if (any(grepl("AO",cnames))) {
-                    ix <- which(grepl("AO",cnames))
-                    oxreg[,ix] <- na.fill(oxreg[,ix], fill = 0)
-                }
-                if (any(grepl("LS",cnames))) {
-                    ix <- which(grepl("LS",cnames))
-                    oxreg[,ix] <- na.fill(oxreg[,ix], fill = 1)
-                }
-                if (any(grepl("TC",cnames))) {
-                    ix <- which(grepl("TC",cnames))
-                    for (j in 1:length(ix)) {
-                        tmp <- oxreg[,ix[j]]
-                        m <- which(tmp == 1)
-                        delta <- as.numeric(tmp[m + 1])
-                        z <- rep(0, nrow(oxreg))
-                        z[m] <- 1
-                        z <- filter(z, filter = delta, method = "recursive")
-                        z <- as.numeric(z)
-                        oxreg[,ix[j]] <- z
-                    }
-                }
-            }
-        } else {
-            oxreg <- NULL
-        }
-        coefnames <- names(coef(model$fit))
-        if (any(grepl("^ar[0-9]",coefnames))) {
-            ar <- length(which(grepl("^ar[0-9]",coefnames)))
-        }
-        if (any(grepl("^ma[0-9]",coefnames))) {
-            ma <- length(which(grepl("^ma[0-9]",coefnames)))
+            oxreg <- cbind(aoxtmp, oxreg)
         }
     }
-    return(list(xreg = oxreg, ar = ar, ma = ma))
+    # one final check for the AO
+    if (!is.null(oxreg)) {
+        cnames <- colnames(oxreg)
+        if (any(duplicated(cnames))) {
+            exc <- which(duplicated(cnames))
+            oxreg <- oxreg[,-exc]
+            init_pars <- init_pars[-exc]
+        }
+    }
+    return(list(xreg = oxreg, init = init_pars))
 }

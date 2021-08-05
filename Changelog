@@ -1,3 +1,9 @@
+# 2021-08-05 v0.1.5 [AG]
+- Reversed changes to v0.1.4 for auto_regressors and re-implemented approach
+using tso with initial outlier detection, followed by stl decomposition and
+then tso on the deseasonalized series. The default options should be carefully
+examined prior to use, as this remains an experimental function which may be
+changed in the future.
 # 2021-08-01 v0.1.4 [AG]
 - Added the UC as an option in the auto_regressors function, based on the
 UComp package. This is much faster and more stable than the tso function.
