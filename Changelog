@@ -1,3 +1,6 @@
+# 2021-12-01 v0.1.6 [AG]
+- Added the smape, rmape and msis metrics. The rmape is the rescaled measure
+of MAPE based on a Box Cox transform from the paper by Swanson et al (2011).
 # 2021-08-05 v0.1.5 [AG]
 - Reversed changes to v0.1.4 for auto_regressors and re-implemented approach
 using tso with initial outlier detection, followed by stl decomposition and

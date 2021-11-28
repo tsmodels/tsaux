@@ -168,11 +168,11 @@ wse <- function(actual, predicted, weights)
     return(weighted_metric)
 }
 
-pinball <- function(actual, distribution, q = 0.95){
+pinball <- function(actual, distribution, alpha = 0.1){
     qtile <- apply(distribution, 2, quantile, q)
     loss <- rep(0, length(actual))
-    loss[actual >= qtile] <- q * (actual - qtile)
-    loss[actual < qtile] <- (1 - q) * (qtile - actual)
+    loss[actual >= qtile] <- (1 - alpha/2) * (actual - qtile)
+    loss[actual < qtile] <- (alpha/2) * (qtile - actual)
     metric <- 2 * mean(loss, na.rm = TRUE)
     return(metric)
 }
@@ -181,5 +181,35 @@ crps <- function(actual, distribution)
 {
     metric <- crps_sample(as.numeric(actual), t(distribution))
     metric <- mean(metric, na.rm = TRUE)
+    return(metric)
+}
+
+rmape <- function(actual, predicted)
+{
+    actual <- as.numeric(actual)
+    predicted <- as.numeric(predicted)
+    abs_pe <- abs( (actual - predicted)/actual )
+    lambda <- auto_lambda(abs_pe, lower = 1e-12, upper = 1.5)
+    ape_t <- ((1 + abs_pe)^lambda - lambda)/lambda
+    mape_t <- sum(abs(ape_t))/length(ape_t)
+    metric <- (lambda * (mape_t + 1))^(1/lambda) - 1
+    return(metric)
+}
+
+smape <- function(actual, predicted)
+{
+    actual <- as.numeric(actual)
+    predicted <- as.numeric(predicted)
+    metric <- mean( (abs(actual - predicted))/(abs(actual) + abs(predicted)))
+    return(metric)
+}
+
+msis <- function(actual, lower, upper, original_series, frequency = 1, alpha)
+{
+    h <- length(upper)
+    n <- length(original_series)
+    a <- sum( (upper - lower) + (2/alpha) * (lower - actual) * as.integer(actual < lower) + (2/alpha) * (actual - upper) * as.integer(actual > upper) )
+    b <- (1/(n - frequency)) * sum(abs(original_series[(frequency + 1):n] - original_series[1:(n - frequency)]))
+    metric <- (1/h) * (a/b)
     return(metric)
 }

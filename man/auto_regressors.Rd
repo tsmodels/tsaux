@@ -12,7 +12,8 @@ regressors during estimation as well initial coefficients (see details).
 \usage{
 auto_regressors(y, frequency = 1, lambda = NULL, forc_dates = NULL, 
 sampling = NULL, h = 0, stlm_opts = list(etsmodel = "AAN"), 
-auto_arima_opts = list(max.p = 1, max.q = 1, d = 1, allowdrift = FALSE), ...)
+auto_arima_opts = list(max.p = 1, max.q = 1, d = 1, allowdrift = FALSE), 
+return_table = FALSE, ...)
 }
 \arguments{
 \item{y}{
@@ -45,6 +46,10 @@ Additional arguments to the stlm function.
 }
 \item{auto_arima_opts}{
 Additional arguments to the auto.arima function in the tso routine.
+}
+\item{return_table}{
+Whether to return a data.table instead with the anomalies detected rather
+than an xts matrix with the pre-processed and ready to use anomalies.
 }
 \item{\dots}{
 Any additional arguments passed to the tso functions (refer to the 

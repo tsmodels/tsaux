@@ -120,6 +120,12 @@ box_cox_auto <- function(y, lower = 0, upper = 1, nonseasonal_length = 2, freque
     return(guerrero(y, lower, upper, nonseasonal_length, frequency))
 }
 
+auto_lambda <- function(y, lower = 0, upper = 1, nonseasonal_length = 2, frequency = 1)
+{
+    return( box_cox_auto(y = y, lower = lower, upper = upper, nonseasonal_length = nonseasonal_length, 
+                 frequency = frequency) )
+}
+
 guerrero <- function(x, lower = 0, upper = 1, nonseasonal_length = 2, frequency = 1)
 {
     return(optimize(guer_cv, c(lower, upper), x = x, nonseasonal_length = nonseasonal_length, frequency = frequency)$minimum)

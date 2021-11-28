@@ -33,14 +33,14 @@ do.call.fast <- function(what, args, quote = FALSE, envir = parent.frame()){
        enclos = envir)
 }
 
-check_xreg = function(xreg, valid.index)
+check_xreg = function(xreg, valid_index)
 {
   if (is.null(xreg)) return(xreg)
-  n <- length(valid.index)
+  n <- length(valid_index)
   if (NROW(xreg) != n) {
     stop("\nxreg does not have the same number of rows as y")
   }
-  if (!all.equal(index(xreg),valid.index)) {
+  if (!all.equal(index(xreg),valid_index)) {
     stop("\nxreg time index does not match that of y")
   }
   if (any(is.na(xreg))) {

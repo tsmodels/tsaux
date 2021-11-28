@@ -1,9 +1,12 @@
 \name{metrics}
 \alias{metrics}
 \alias{mape}
+\alias{rmape}
+\alias{smape}
 \alias{mase}
 \alias{mslre}
 \alias{mis}
+\alias{msis}
 \alias{bias}
 \alias{wape}
 \alias{wslre}
@@ -18,15 +21,18 @@ Functions to calculate a number of performance metrics.
 }
 \usage{
 mape(actual, predicted)
+smape(actual, predicted)
+rmape(actual, predicted)
 mase(actual, predicted, original_series = NULL, frequency = 1)
 mslre(actual, predicted)
 bias(actual, predicted)
 mis(actual, lower, upper, alpha)
+msis(actual, lower, upper, original_series, frequency = 1, alpha)
 wape(actual, predicted, weights)
 wslre(actual, predicted, weights)
 wse(actual, predicted, weights)
 crps(actual, distribution)
-pinball(actual, distribution, q = 0.95)
+pinball(actual, distribution, alpha = 0.1)
 }
 \arguments{
 \item{actual}{
@@ -58,9 +64,6 @@ object). This is used in the continuous ranked probability score (crps) of
 Gneiting et al (2005), and calculated using the function from the 
 scoringRules package.
 }
-\item{q}{
-The quantile for evaluating the pinball loss function.
-}
 \item{weights}{
 A vector of weights for generating weighted metrics. If the actual
 and predicted inputs are univariate, this should be equal to the
@@ -71,7 +74,8 @@ calculated.
 }
 }
 \note{
-The bias metric returns the percent bias.
+The bias metric returns the percent bias. The rmape is the rescaled measure for
+mape based on the paper by Swanson et al.
 }
 \value{
 A numeric value.
@@ -83,7 +87,9 @@ Hyndman, Rob J and Koehler, Anne B (2006). Another look at measures of forecast 
 Gneiting, Tilmann, Raftery, Adrian E, Westveld, Anton H and Goldman, Tom (2005). Calibrated Probabilistic Forecasting Using Ensemble Model Output Statistics and Minimum CRPS Estimation, Monthly Weather Review, \emph{133(5)},
 1098-1118.\cr
 Gneiting, Tilmann and Raftery, Adrian E (2007). Strictly proper scoring rules, prediction, and estimation, 
-Journal of the American statistical Association \emph{102(477)}, 359-378.
+Journal of the American statistical Association \emph{102(477)}, 359-378.\cr
+Swanson, D.A., Tayman, J. and Bryan, T.M. (2011) MAPE-R: a rescaled measure of accuracy for cross-sectional 
+subnational population forecasts. J Pop Research \emph{28}, 225–243.
 }
 \author{
 Alexios Galanos

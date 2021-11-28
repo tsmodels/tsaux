@@ -1,4 +1,5 @@
 import("methods")
+import("data.table", except = c("wday","year"))
 importFrom("stats", "as.formula", "fitted", "lm", "model.frame","optimize", "residuals", "rnorm", "sd", "stl", "ts","acf",
            "spec.ar","na.contiguous", "na.exclude", "na.omit","as.ts","quantile","predict","filter","coef")
 importFrom("utils", "tail")
@@ -11,8 +12,9 @@ importFrom("stlplus","stlplus")
 importFrom("tsoutliers","tso")
 importFrom("forecast", "tsoutliers","na.interp","stlm","msts","seasadj")
 export("do.call.fast","tslinear","check_xreg","check_newxreg")
-export("mase","mape","mslre","bias","mis","wape","wslre","wse","crps","pinball")
-export("box_cox")
+export("mase","mape","smape","rmape","mslre","bias","mis","msis","wape","wslre",
+       "wse","crps","pinball")
+export("box_cox","auto_lambda")
 export("calendar_eow","calendar_eom","calendar_eoq","calendar_eoy")
 export("future_dates","sampling_frequency","sampling_sequence","fourier_series")
 export("seasonality_test","seasonal_dummies","auto_regressors")

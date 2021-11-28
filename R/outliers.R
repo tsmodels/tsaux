@@ -1,7 +1,9 @@
 auto_regressors <- function(y, frequency = 1, lambda = NULL, forc_dates = NULL, sampling = NULL, h = 0, 
-                            stlm_opts = list(etsmodel = "AAN"), auto_arima_opts = list(max.p = 1, max.q = 1, d = 1, allowdrift = FALSE), ...)
+                            stlm_opts = list(etsmodel = "AAN"), auto_arima_opts = list(max.p = 1, max.q = 1, d = 1, allowdrift = FALSE), 
+                            return_table = FALSE, ...)
 {
     # missing values initial
+    type <- NULL
     if (h > 0) {
         if (is.null(sampling) & is.null(forc_dates)) {
             stop("\nh>0 but neither forc_dates or the sampling frequency of the data has been provided.")
@@ -72,11 +74,12 @@ auto_regressors <- function(y, frequency = 1, lambda = NULL, forc_dates = NULL, 
             xtmp <- xreg[,grepl("^TC", cnames), drop = FALSE]
             tcxtmp <- xts(matrix(0, ncol = length(tcx), nrow = length(newindex)), newindex)
             colnames(tcxtmp) <- paste0("TC",tcx)
+            delta <- rep(0, length(tcx))
             for (i in 1:length(tcx)) {
-                delta <- xtmp[tcx[i] + 1, i]
+                delta[i] <- xtmp[tcx[i] + 1, i]
                 z <- rep(0, length(newindex))
                 z[tcx[i]] <- 1
-                z <- filter(z, filter = delta, method = "recursive")
+                z <- filter(z, filter = delta[i], method = "recursive")
                 z <- as.numeric(z)
                 tcxtmp[,i] <- as.numeric(z)
             }
@@ -113,5 +116,14 @@ auto_regressors <- function(y, frequency = 1, lambda = NULL, forc_dates = NULL, 
             init_pars <- init_pars[-exc]
         }
     }
-    return(list(xreg = oxreg, init = init_pars))
+    if (return_table) {
+        dt <- as.numeric(sapply(1:ncol(oxreg), function(i) substr(colnames(oxreg)[i],3,nchar(colnames(oxreg)[i]))))
+        dt <- index(y)[dt]
+        rtable <- data.table(type = substr(colnames(oxreg),1,2), date = dt, filter = 0, coef = init_pars)
+        rtable[type == "TC", filter := delta]
+        rtable[type == "LS", filter := 1]
+        return(rtable)
+    } else {
+        return(list(xreg = oxreg, init = init_pars))
+    }
 }

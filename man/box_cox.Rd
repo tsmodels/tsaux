@@ -1,5 +1,6 @@
 \name{box_cox}
 \alias{box_cox}
+\alias{auto_lambda}
 \title{
 Box-Cox transform specification
 }
@@ -8,6 +9,7 @@ Creates a specification for the Box Cox transformtion.
 }
 \usage{
 box_cox(lambda = NA, lower = 0, upper = 1.5, multivariate = FALSE)
+auto_lambda(y, lower = 0, upper = 1, nonseasonal_length = 2, frequency = 1)
 }
 \arguments{
 \item{lambda}{
@@ -29,6 +31,16 @@ Optional parameter lower bound for cases when it is calculated.
 \item{upper}{
 Optional paraemter upper bound for cases when it is calculated.
 }
+\item{y}{
+An xts vector of strictly positive values.
+}
+\item{frequency}{
+The seasonal period of the data.
+}
+\item{nonseasonal_length}{
+The measurement periodicity of the data. The maximum of this or the
+frequency argument is taken when calculating the optimal lambda.
+}
 \item{multivariate}{
 Flag for the multivariate case. If lambda is a single parameter,
 then that is applied to all series (including NA which results in
@@ -41,9 +53,11 @@ and \dQuote{inverse} which can be called with a data object and
 a frequency to calculate the transformed values. It is meant to be used
 in the transform argument of the model specifications in the ts universe
 of models.
+The auto_lambda function uses the method of Guerrero(1993).
 }
 \value{
-A list with the transform and invtransform functions.
+A list with the transform and invtransform functions. For the auto_lambda
+function the optimal lambda is returned.
 }
 \references{
 Box, G. E. P. and Cox, D. R. (1964),\emph{An analysis of transformations}. JRSS B \bold{26} 211--246.\cr
