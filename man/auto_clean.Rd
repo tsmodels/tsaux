@@ -1,0 +1,57 @@
+\name{auto_clean}
+\alias{auto_clean}
+\title{
+Automatic Cleaning of Outliers and Temporary Changes
+}
+\description{
+A wrapper function for \emph{tso} from  the tsoutliers packages. Takes as input 
+a univariate xts object and returns a series decomtaminated from outliers and 
+temporary changes.
+}
+\usage{
+auto_clean(y, frequency = 1, lambda = NULL, types = c("AO", "TC"), 
+stlm_opts = list(etsmodel = "AAN"), auto_arima_opts = list(max.p = 1, 
+max.q = 1, d = 1, allowdrift = FALSE), ...) 
+}
+\arguments{
+\item{y}{
+A univariate xts object.
+}
+\item{frequency}{
+The frequency of the time series. If the frequency is 1 then seasonal estimation
+will be turned off. Will also accept multiple seasonal frequencies.
+}
+\item{lambda}{
+An optional Box Cox transformation parameter. The routines are then run on the
+transformed dataset.
+}
+\item{stlm_opts}{
+Additional arguments to the stlm function.
+}
+\item{auto_arima_opts}{
+Additional arguments to the auto.arima function in the tso routine.
+}
+\item{types}{
+The types of anomalies to search and decontaminate series from. Defaults to
+Additive outliers and temporary changes. Can be enhanced with trend breaks but
+not suggested for the purpose of forecasting.
+}
+\item{\dots}{
+Any additional arguments passed to the tso functions (refer to the 
+documentation of the tsoutliers package).
+}
+}
+\details{
+Call the \code{\link{auto_regressors}} function to obtain the matrix of 
+regressors and coefficients which are then used to decomtaminate the series. 
+If lambda is not NULL, the series is first transformed to perform the 
+decontamination and then back transformed afterwards.
+}
+\value{
+A xts vector/
+}
+\author{
+Alexios Galanos for this wrapper function.\cr
+Rob Hyndman for the forecast package.\cr
+Javier López-de-Lacalle for the tsoutliers package.
+}
