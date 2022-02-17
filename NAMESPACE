@@ -15,6 +15,7 @@ export("do.call.fast","tslinear","check_xreg","check_newxreg")
 export("mase","mape","smape","rmape","mslre","bias","mis","msis","wape","wslre",
        "wse","crps","pinball")
 export("box_cox","auto_lambda")
+export("logit","logit_transform","logit_inverse")
 export("calendar_eow","calendar_eom","calendar_eoq","calendar_eoy")
 export("future_dates","sampling_frequency","sampling_sequence","fourier_series")
 export("seasonality_test","seasonal_dummies","auto_regressors","auto_clean")

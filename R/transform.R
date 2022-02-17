@@ -143,3 +143,24 @@ guer_cv <- function(lambda, x, nonseasonal_length = 2, frequency)
     x_rat <- x_sd/x_mean^(1 - lambda)
     return(sd(x_rat, na.rm = TRUE)/mean(x_rat, na.rm = TRUE))
 }
+
+logit_transform <- function(x, xmin = 0, xmax = 1.0) {
+    # log(x/(1 - x))
+    -1.0 * log( ((xmax - xmin)/(x - xmin)) - 1.0)
+}
+
+logit_inverse <- function(x, xmin = 0, xmax = 1.0) {
+    # exp(x)/(1 + exp(x))
+    (xmax - xmin)/(1 + exp(-x)) + xmin
+}
+
+logit <- function(xmin = 0, xmax = 1.0)
+{
+    f <- function(y){
+        logit_transform(y, xmin, xmax)
+    }
+    fi <- function(y){
+        logit_inverse(y, xmin, xmax)
+    }
+    return(list(transform = f, inverse = fi))
+}

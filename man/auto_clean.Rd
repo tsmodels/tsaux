@@ -48,7 +48,7 @@ If lambda is not NULL, the series is first transformed to perform the
 decontamination and then back transformed afterwards.
 }
 \value{
-A xts vector/
+A xts vector.
 }
 \author{
 Alexios Galanos for this wrapper function.\cr
