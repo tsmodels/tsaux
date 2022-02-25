@@ -8,8 +8,8 @@ Box-Cox transform specification
 Creates a specification for the Box Cox transformtion.
 }
 \usage{
-box_cox(lambda = NA, lower = 0, upper = 1.5, multivariate = FALSE)
-auto_lambda(y, lower = 0, upper = 1, nonseasonal_length = 2, frequency = 1)
+box_cox(lambda = NA, lower = 0, upper = 1.5, multivariate = FALSE, ...)
+auto_lambda(y, lower = 0, upper = 1, nonseasonal_length = 2, frequency = 1, ...)
 }
 \arguments{
 \item{lambda}{
@@ -45,6 +45,9 @@ frequency argument is taken when calculating the optimal lambda.
 Flag for the multivariate case. If lambda is a single parameter,
 then that is applied to all series (including NA which results in
 the multivariate transformation described above).
+}
+\item{\ldots}{
+Not currently used.
 }
 }
 \details{

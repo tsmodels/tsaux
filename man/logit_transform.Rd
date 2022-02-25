@@ -9,19 +9,22 @@ The logit transformation
 The logit transformation as an alternative to the Box Cox for bounded outcomes.
 }
 \usage{
-logit(xmin = 0, xmax = 1.0)
-logit_inverse(x, xmin = 0, xmax = 1.0)
-logit_transform(x, xmin = 0, xmax = 1.0)
+logit(lower = 0, upper = 1.0, ...)
+logit_inverse(x, lower = 0, upper = 1.0, ...)
+logit_transform(x, lower = 0, upper = 1.0, ...)
 }
 \arguments{
 \item{x}{
 A numeric vector (or object which can be coerced to such).
 }
-\item{xmin}{
+\item{lower}{
 The lower bound of the variable.
 }
-\item{xmax}{
+\item{upper}{
 The upper bound of the variable.
+}
+\item{\ldots}{
+Not currently used.
 }
 }
 \details{

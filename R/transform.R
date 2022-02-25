@@ -1,10 +1,10 @@
-box_cox <- function(lambda = NA, lower = 0, upper = 1.5, multivariate = FALSE)
+box_cox <- function(lambda = NA, lower = 0, upper = 1.5, multivariate = FALSE, ...)
 {
     .lambda <- lambda
     .lower <- lower
     .upper <- upper
     if (multivariate) {
-        f <- function(y, lambda = .lambda, frequency = 1){
+        f <- function(y, lambda = .lambda, frequency = 1, ...){
             n <- NCOL(y)
             if (length(frequency) == 1) {
                 frequency <- rep(frequency, n)
@@ -62,20 +62,20 @@ box_cox <- function(lambda = NA, lower = 0, upper = 1.5, multivariate = FALSE)
                 }
             }
         }
-        fi <- function(y, lambda){
+        fi <- function(y, lambda, ...){
             out <- do.call(cbind, lapply(1:ncol(y), function(i){ box_cox_inverse(y[,i], lambda = lambda[i]) }))
             colnames(out) <- colnames(y)
             return(out)
         }
     } else {
-        f <- function(y, lambda = .lambda, frequency = 1){
+        f <- function(y, lambda = .lambda, frequency = 1, ...){
             if (NCOL(y) > 1) stop("\ny is multivariate. Call the function with multivariate = TRUE argument.")
             if (is.na(lambda)) lambda <- box_cox_auto(y, lower = .lower, upper = .upper, frequency = frequency)
             out <- box_cox_transform(y, lambda = lambda)
             attr(out, "lambda") <- lambda
             return(out)
         }
-        fi <- function(y, lambda){
+        fi <- function(y, lambda, ...){
             box_cox_inverse(y, lambda)
         }
     }
@@ -120,7 +120,7 @@ box_cox_auto <- function(y, lower = 0, upper = 1, nonseasonal_length = 2, freque
     return(guerrero(y, lower, upper, nonseasonal_length, frequency))
 }
 
-auto_lambda <- function(y, lower = 0, upper = 1, nonseasonal_length = 2, frequency = 1)
+auto_lambda <- function(y, lower = 0, upper = 1, nonseasonal_length = 2, frequency = 1, ...)
 {
     return( box_cox_auto(y = y, lower = lower, upper = upper, nonseasonal_length = nonseasonal_length, 
                  frequency = frequency) )
@@ -144,23 +144,33 @@ guer_cv <- function(lambda, x, nonseasonal_length = 2, frequency)
     return(sd(x_rat, na.rm = TRUE)/mean(x_rat, na.rm = TRUE))
 }
 
-logit_transform <- function(x, xmin = 0, xmax = 1.0) {
+logit_transform <- function(x, lower = 0, upper = 1.0, ...) {
     # log(x/(1 - x))
-    -1.0 * log( ((xmax - xmin)/(x - xmin)) - 1.0)
+    -1.0 * log( ((upper - lower)/(x - lower)) - 1.0)
 }
 
-logit_inverse <- function(x, xmin = 0, xmax = 1.0) {
+logit_inverse <- function(x, lower = 0, upper = 1.0, ...) {
     # exp(x)/(1 + exp(x))
-    (xmax - xmin)/(1 + exp(-x)) + xmin
+    (upper - lower)/(1 + exp(-x)) + lower
 }
 
-logit <- function(xmin = 0, xmax = 1.0)
+logit <- function(lower = 0, upper = 1.0, ...)
 {
-    f <- function(y){
-        logit_transform(y, xmin, xmax)
+    f <- function(y, ...){
+        logit_transform(y, lower, upper)
     }
-    fi <- function(y){
-        logit_inverse(y, xmin, xmax)
+    fi <- function(y, ...){
+        logit_inverse(y, lower, upper)
     }
     return(list(transform = f, inverse = fi))
+}
+
+tstransform <- function(method = "box-cox", lambda = NULL, lower = 0, upper = 1, 
+                        ...)
+{
+    method = match.arg(method[1], c("box-cox","logit"))
+    f <- switch(method[1],
+                "box-cox" = box_cox(lambda = lambda, lower = lower, upper = upper, ...),
+                "logit" = logit(lower = lower, upper = upper, ...))
+    return(f)
 }
