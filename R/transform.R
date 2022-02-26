@@ -145,13 +145,12 @@ guer_cv <- function(lambda, x, nonseasonal_length = 2, frequency)
 }
 
 logit_transform <- function(x, lower = 0, upper = 1.0, ...) {
-    # log(x/(1 - x))
-    -1.0 * log( ((upper - lower)/(x - lower)) - 1.0)
+    if (any(x) > upper | any(x < lower)) stop("\nrange of x is outside of lower and upper")
+    return( -1.0 * log( ((upper - lower)/(x - lower)) - 1.0) )
 }
 
 logit_inverse <- function(x, lower = 0, upper = 1.0, ...) {
-    # exp(x)/(1 + exp(x))
-    (upper - lower)/(1 + exp(-x)) + lower
+    return((upper - lower)/(1 + exp(-x)) + lower )
 }
 
 logit <- function(lower = 0, upper = 1.0, ...)
