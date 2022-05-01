@@ -124,7 +124,7 @@ wape <- function(actual, predicted, weights)
     # Normalizing weights to sum to 1
     weights <- weights/sum(weights)
     abs_error <- abs(predicted - actual)/actual
-    weighted_metric <- mean(abs_error %*% weights)
+    weighted_metric <- mean(abs_error %*% weights, na.rm = T)
     return(weighted_metric)
 }
 
@@ -144,7 +144,7 @@ wslre <- function(actual, predicted, weights)
     if (any(weights <= 0)) stop("\nweights must be strictly positive")
     # Normalizing weights to sum to 1
     weights <- weights/sum(weights)
-    weighted_metric <- mean(log(predicted/actual)^2 %*% weights)
+    weighted_metric <- mean(log(predicted/actual)^2 %*% weights, na.rm = T)
     return(weighted_metric)
 }
 
@@ -164,7 +164,7 @@ wse <- function(actual, predicted, weights)
     if (any(weights <= 0)) stop("\nweights must be strictly positive")
     # Normalizing weights to sum to 1
     weights <- weights/sum(weights)
-    weighted_metric <- mean((predicted - actual)^2 %*% weights)
+    weighted_metric <- mean((predicted - actual)^2 %*% weights, na.rm = T)
     return(weighted_metric)
 }
 
@@ -180,7 +180,7 @@ pinball <- function(actual, distribution, alpha = 0.1){
 crps <- function(actual, distribution) 
 {
     metric <- crps_sample(as.numeric(actual), t(distribution))
-    metric <- mean(metric, na.rm = TRUE)
+    metric <- mean(metric, na.rm = TRUE, na.rm = T)
     return(metric)
 }
 
@@ -191,7 +191,7 @@ rmape <- function(actual, predicted)
     abs_pe <- abs( (actual - predicted)/actual )
     lambda <- auto_lambda(abs_pe, lower = 1e-12, upper = 1.5)
     ape_t <- ((1 + abs_pe)^lambda - lambda)/lambda
-    mape_t <- sum(abs(ape_t))/length(ape_t)
+    mape_t <- sum(abs(ape_t), na.rm = T)/length(ape_t)
     metric <- (lambda * (mape_t + 1))^(1/lambda) - 1
     return(metric)
 }
@@ -200,7 +200,7 @@ smape <- function(actual, predicted)
 {
     actual <- as.numeric(actual)
     predicted <- as.numeric(predicted)
-    metric <- mean( (abs(actual - predicted))/(abs(actual) + abs(predicted)))
+    metric <- mean( (abs(actual - predicted))/(abs(actual) + abs(predicted)), na.rm = T)
     return(metric)
 }
 
@@ -208,8 +208,8 @@ msis <- function(actual, lower, upper, original_series, frequency = 1, alpha)
 {
     h <- length(upper)
     n <- length(original_series)
-    a <- sum( (upper - lower) + (2/alpha) * (lower - actual) * as.integer(actual < lower) + (2/alpha) * (actual - upper) * as.integer(actual > upper) )
-    b <- (1/(n - frequency)) * sum(abs(original_series[(frequency + 1):n] - original_series[1:(n - frequency)]))
+    a <- sum( (upper - lower) + (2/alpha) * (lower - actual) * as.integer(actual < lower) + (2/alpha) * (actual - upper) * as.integer(actual > upper), na.rm = T)
+    b <- (1/(n - frequency)) * sum(abs(original_series[(frequency + 1):n] - original_series[1:(n - frequency)]), na.rm = T)
     metric <- (1/h) * (a/b)
     return(metric)
 }

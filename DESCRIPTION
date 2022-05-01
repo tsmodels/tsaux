@@ -1,7 +1,7 @@
 Package: tsaux
 Type: Package
 Title: Auxilliary Functions for tsmodels framework
-Version: 0.1.9
+Version: 0.3.0
 Authors@R: c(person("Alexios", "Galanos", role = c("aut", "cre"),
     email = "alexios@4dscape.com"),
     person("James","Nesbit",role="ctb",

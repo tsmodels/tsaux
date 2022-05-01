@@ -4,6 +4,10 @@ auto_regressors <- function(y, frequency = 1, lambda = NULL, forc_dates = NULL, 
 {
     # missing values initial
     type <- NULL
+    if (length(y) <= (2 * min(frequency))) {
+        frequency <- 1
+        warning("\nlength of y less than 2xfrequency. Setting frequency to 1.")
+    }
     if (h > 0) {
         if (is.null(sampling) & is.null(forc_dates)) {
             stop("\nh>0 but neither forc_dates or the sampling frequency of the data has been provided.")
@@ -128,27 +132,26 @@ auto_regressors <- function(y, frequency = 1, lambda = NULL, forc_dates = NULL, 
     }
 }
 
-table_auto_regressors <- function(.x, start_date = min(.x$date), end_date = max(.x$date), sampling = NULL)
-{
-    if (!is(.x, 'data.table')) stop("\n.x must be a data.table")
-    if (NROW(.x) > 0) {
-        if (is.null(sampling)) stop("\nsampling must be specified")
-        if (grepl("months",sampling)) {
-            start_date <- as.Date(paste0(year(start_date),"-", month(start_date),"-01"))
-            end_date <- as.Date(paste0(year(end_date),"-", month(end_date),"-01"))
-        }
-        vdates <- seq(start_date, end_date, by = sampling)
-        if (grepl("months",sampling)) {
-            vdates <- calendar_eom(vdates)
-        }
-        m <- nrow(.x)
-        xreg <- matrix(0, ncol = m, nrow = length(vdates))
-        
-    } else {
-        return(NULL)
-    }
-
-}
+# table_auto_regressors <- function(.x, start_date = min(.x$date), end_date = max(.x$date), sampling = NULL)
+# {
+#     if (!is(.x, 'data.table')) stop("\n.x must be a data.table")
+#     if (NROW(.x) > 0) {
+#         if (is.null(sampling)) stop("\nsampling must be specified")
+#         if (grepl("months",sampling)) {
+#             start_date <- as.Date(paste0(year(start_date),"-", month(start_date),"-01"))
+#             end_date <- as.Date(paste0(year(end_date),"-", month(end_date),"-01"))
+#         }
+#         vdates <- seq(start_date, end_date, by = sampling)
+#         if (grepl("months",sampling)) {
+#             vdates <- calendar_eom(vdates)
+#         }
+#         m <- nrow(.x)
+#         xreg <- matrix(0, ncol = m, nrow = length(vdates))
+#         
+#     } else {
+#         return(NULL)
+#     }
+# }
 
 auto_clean <- function(y, frequency = 1, lambda = NULL, types = c("AO","TC"), stlm_opts = list(etsmodel = "AAN"), auto_arima_opts = list(max.p = 1, max.q = 1, d = 1, allowdrift = FALSE), ...)
 {
