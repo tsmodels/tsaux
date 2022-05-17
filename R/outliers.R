@@ -173,3 +173,64 @@ auto_clean <- function(y, frequency = 1, lambda = NULL, types = c("AO","TC"), st
         return(y)
     }
 }
+
+additive_outlier <- function(y, time = 1, parameter = 0.5, add = TRUE)
+{
+    time <- as.integer(time[1])
+    parameter <- as.numeric(parameter[1])
+    n <- NROW(y)
+    if (!(time %in% (1:n))) stop("\ntime not inside length of y")
+    v <- rep(0, n)
+    v[time] <- 1
+    out <- filter(v, filter = 0, method = "recursive", init = 0)
+    if (add) {
+        coredata(y) <- coredata(y) + parameter * (coredata(y) * out)
+        return(y)
+    } else {
+        out <- matrix(as.numeric(out), ncol = 1)
+        colnames(out) <- paste0("AO_",time)
+        if (is.xts(y)) out <- xts(out, index(y))
+        return(out)
+    }
+}
+
+temporary_change <- function(y, time = 1, parameter = 0.5, alpha = 0.7, add = TRUE)
+{
+    time <- as.integer(time[1])
+    parameter <- as.numeric(parameter[1])
+    alpha <- as.numeric(alpha[1])
+    n <- NROW(y)
+    if (!(time %in% (1:n))) stop("\ntime not inside length of y")
+    v <- rep(0, n)
+    v[time] <- 1
+    out <- filter(v, filter = alpha, method = "recursive", init = 0)
+    if (add) {
+        coredata(y) <- coredata(y) + parameter * (coredata(y) * out)
+        return(y)
+    } else {
+        out <- matrix(as.numeric(out), ncol = 1)
+        colnames(out) <- paste0("TC_",time)
+        if (is.xts(y)) out <- xts(out, index(y))
+        return(out)
+    }
+}
+
+level_shift <- function(y, time = 1, parameter = 0.5, add = TRUE)
+{
+    time <- as.integer(time[1])
+    parameter <- as.numeric(parameter[1])
+    n <- NROW(y)
+    if (!(time %in% (1:n))) stop("\ntime not inside length of y")
+    v <- rep(0, n)
+    v[time] <- 1
+    out <- filter(v, filter = 1, method = "recursive", init = 0)
+    if (add) {
+        coredata(y) <- coredata(y) + parameter * (coredata(y) * out)
+        return(y)
+    } else {
+        out <- matrix(as.numeric(out), ncol = 1)
+        colnames(out) <- paste0("AO_",time)
+        if (is.xts(y)) out <- xts(out, index(y))
+        return(out)
+    }
+}
