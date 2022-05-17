@@ -13,7 +13,7 @@ regressors during estimation as well initial coefficients (see details).
 auto_regressors(y, frequency = 1, lambda = NULL, forc_dates = NULL, 
 sampling = NULL, h = 0, stlm_opts = list(etsmodel = "AAN"), 
 auto_arima_opts = list(max.p = 1, max.q = 1, d = 1, allowdrift = FALSE), 
-return_table = FALSE, ...)
+return_table = FALSE, method = c("sequential", "full"), ...)
 }
 \arguments{
 \item{y}{
@@ -51,6 +51,11 @@ Additional arguments to the auto.arima function in the tso routine.
 Whether to return a data.table instead with the anomalies detected rather
 than an xts matrix with the pre-processed and ready to use anomalies.
 }
+\item{method}{
+Whether to apply a sequential identification of anomalies using STL decomposition
+in order to only pass the stationary residuals to the tso function, else 
+to pass the series directly to the tso package.
+}
 \item{\dots}{
 Any additional arguments passed to the tso functions (refer to the 
 documentation of the tsoutliers package).
@@ -60,25 +65,28 @@ documentation of the tsoutliers package).
 For generating future values of the identified outliers, the filter function is
 used with additive outliers having a filter value of 0, trend changes a value of
 1, and temporary changes have value between 0 and 1.
-The routine first interpolates any missing values, followed by an optional Box
-Cox transformation, and then elimination (and identification) of any outliers 
-during the first pass. The cleaned series is then run through an stl filter (if
-any frequency is greater than 1) in order to deseasonalize the data (with 
-multiple seasonality supported), after which the deseasonlized series is passed 
-to the tso function where any additive outliers (AO), temporary shifts (TC) or 
-level shift (LS) are identified. Additive outliers from this stage are added to 
-any identified outliers from the initial stage. For each regressor, initial 
-parameter values are returned together with the regressor matrix which should be 
-passed to the estimation routine. This is critically important since in the 
-absence of good parameter scaling, initial values are key to good convergence.
-Care should be taken with regards to any automatic Box Cox parameter estimation. 
-In the presence of large outliers or level shifts, this is likely to be badly
-estimated which is why we do not allow automatic calculation of this, but instead
-place the burden on the user to decide what is a reasonable value (if any).
+For the sequential method, the routine first interpolates any missing values, 
+followed by an optional Box Cox transformation, and then elimination 
+(and identification) of any outliers during the first pass. The cleaned series 
+is then run through an stl filter (if any frequency is greater than 1) in 
+order to deseasonalize the data (with multiple seasonality supported), after 
+which the deseasonlized series is passed to the tso function where any additive 
+outliers (AO), temporary shifts (TC) or level shift (LS) are identified. 
+Additive outliers from this stage are added to any identified outliers from 
+the initial stage. For each regressor, initial parameter values are returned 
+together with the regressor matrix which should be passed to the estimation 
+routine. This is critically important since in the absence of good parameter 
+scaling, initial values are key to good convergence. Care should be taken with 
+regards to any automatic Box Cox parameter estimation. In the presence of 
+large outliers or level shifts, this is likely to be badly estimated which is 
+why we do not allow automatic calculation of this, but instead place the burden 
+on the user to decide what is a reasonable value (if any).
 If a Box Cox transformation is used in the estimation routine, then it is important
 to use the same lambda parameter in this function in order to get sensible results.
 Again, avoid automatic Box Cox calculations throughout when you suspect significant
 contamination of the series by outliers and breaks.
+For the full method, the series is directly passed to the tso function of the
+tsoutliers package.
 Finally, it should be noted that this function is still experimental, and may
 change in the future.
 }

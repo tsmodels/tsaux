@@ -11,7 +11,8 @@ temporary changes.
 \usage{
 auto_clean(y, frequency = 1, lambda = NULL, types = c("AO", "TC"), 
 stlm_opts = list(etsmodel = "AAN"), auto_arima_opts = list(max.p = 1, 
-max.q = 1, d = 1, allowdrift = FALSE), ...) 
+max.q = 1, d = 1, allowdrift = FALSE), method = c("sequential", "full"),
+...) 
 }
 \arguments{
 \item{y}{
@@ -35,6 +36,11 @@ Additional arguments to the auto.arima function in the tso routine.
 The types of anomalies to search and decontaminate series from. Defaults to
 Additive outliers and temporary changes. Can be enhanced with trend breaks but
 not suggested for the purpose of forecasting.
+}
+\item{method}{
+Whether to apply a sequential identification of anomalies using STL decomposition
+in order to only pass the stationary residuals to the tso function, else 
+to pass the series directly to the tso package.
 }
 \item{\dots}{
 Any additional arguments passed to the tso functions (refer to the 
