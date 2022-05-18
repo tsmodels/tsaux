@@ -1,6 +1,10 @@
-# tsaux &nbsp; [![R](https://github.com/tsmodels/tsaux/workflows/R/badge.svg)](https://github.com/tsmodels/tsaux/actions?query=workflow%3AR) [![Build Status](https://travis-ci.org/tsmodels/tsaux.svg?branch=master)](https://travis-ci.org/tsmodels/tsaux) [![Build status](https://ci.appveyor.com/api/projects/status/github/tsmodels/tsaux?branch=master)](https://ci.appveyor.com/project/kthohr/tsaux/branch/master)
-General purpose calendar and auxiliary functions for **tsmodels** packages.
 
-## Installation
+[![R-CMD-check](https://github.com/tsmodels/tsaux/workflows/R-CMD-check/badge.svg)](https://github.com/tsmodels/tsaux/actions)
+[![Last-changedate](https://img.shields.io/badge/last%20change-2022--05--17-yellowgreen.svg)](/commits/master)
+[![packageversion](https://img.shields.io/badge/Package%20version-0.3.1-orange.svg?style=flat-square)](commits/master)
+[![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/tsaux)](https://cran.r-project.org/package=tsaux)
 
-For installation instructions and vignettes for **tsmodels** packages, see https://tsmodels.github.io/.
+# tsaux
+
+General purpose calendar and auxiliary functions for **tsmodels**
+packages, including outlier detection and transformations.

@@ -8,3 +8,5 @@ README.md
 cleanup
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^\.github$
+README.Rmd
