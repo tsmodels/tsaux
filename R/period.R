@@ -1,3 +1,18 @@
+#' End of Week Date
+#' 
+#' Returns the last day of the week from a Date given a choice of week days.
+#' 
+#' Given a Date (such as 2019-01-02) and a day of 7, will return the Date for
+#' the Sunday at or immediately after that. The week starting day is Monday
+#' (1). A simple use case is when one wants to aggregate daily data to a
+#' regular weekly sequence.
+#' 
+#' @param date a Date vector
+#' @param day a value between 1 (Monday) and 7 (Sunday).
+#' @return Date object
+#' @export
+#' @rdname calendar_eow
+#' @author Alexios Galanos
 calendar_eow <- function(date, day = 7)
 {
     if (!is(date, "Date")) date <- as.Date(date)
@@ -9,6 +24,20 @@ calendar_eow <- function(date, day = 7)
     return(newdate)
 }
 
+
+
+#' End of Month Date
+#' 
+#' Returns the last day of the month from a Date within the month.
+#' 
+#' Given a Date (such as 2019-01-02), will return the last Date within that
+#' year month.
+#' 
+#' @param date a Date vector
+#' @return Date object
+#' @export
+#' @rdname calendar_eom
+#' @author Alexios Galanos
 calendar_eom <- function(date)
 {
     if (!is(date, "Date")) date <- as.Date(date)
@@ -26,6 +55,20 @@ calendar_eom <- function(date)
     return(result)
 }
 
+
+
+#' End of Quarter Date
+#' 
+#' Returns the last day of the quarter from a Date.
+#' 
+#' Given a date (such as 2019-01-02), will return the last date within that
+#' year quarter.
+#' 
+#' @param date a Date vector
+#' @return Date object
+#' @export
+#' @rdname calendar_eoq
+#' @author Alexios Galanos
 calendar_eoq <- function(date) {
     if (!is(date, "Date")) date <- as.Date(date)
     date.lt <- as.POSIXlt(date)
@@ -37,6 +80,20 @@ calendar_eoq <- function(date) {
     return(result)
 }
 
+
+
+#' End of Year Date
+#' 
+#' Returns the last day of the year from a Date.
+#' 
+#' Given a date (such as 2019-01-02), will return the last date within that
+#' year.
+#' 
+#' @param date a Date vector
+#' @return Date object
+#' @export
+#' @rdname calendar_eoy
+#' @author Alexios Galanos
 calendar_eoy <- function(date) {
     if (!is(date, "Date")) date <- as.Date(date)
     result <- calendar_eom(as.Date(paste0(year(date),"-12-01")))

@@ -1,3 +1,20 @@
+#' Infers the sampling frequency of a time series
+#' 
+#' Given either a vector of time indices or an xts object will infer the
+#' sampling frequency.
+#' 
+#' 
+#' @param x either an xts object (or one which has an index attribute) else a
+#' vector of class Date or POSIX based time index.
+#' @return the sampling period (character).
+#' @export
+#' @rdname sampling_frequency
+#' @examples
+#' 
+#' w <- sampling_frequency(seq(as.Date("2010-01-01"), as.Date("2011-01-01"), by="weeks"))
+#' m <- sampling_frequency(seq(as.POSIXct("2010-01-01 12:00:00"),
+#' as.POSIXct("2010-01-02 12:00:00"), by="15 mins"))
+#'
 sampling_frequency <- function(x)
 {
     if (is(x, "Date") || length(grep("POSIX", class(x))) > 0) {
@@ -79,6 +96,30 @@ find_frequency <- function(x)
     return(as.integer(period))
 }
 
+
+
+#' Sampling Frequency Sequence
+#' 
+#' Given a sampling period, the function will return the number of units of
+#' that period in secs, mins, hours, days, weeks, months and years, but will
+#' return NA for periods of higher frequency i.e. for a period of days it will
+#' return NA for secs, mins and hours. The function serves as a helper for
+#' seasonal periodicity calculations.
+#' 
+#' 
+#' @param period the period returned by a call to the function
+#' \code{\link{sampling_frequency}}.
+#' @return A named numeric vector.
+#' @export
+#' @rdname sampling_sequence
+#' @author Alexios Galanos
+#' @examples
+#' 
+#' w <- sampling_sequence(sampling_frequency(seq(as.Date("2010-01-01"),
+#' as.Date("2011-01-01"), by="weeks")))
+#' m <- sampling_sequence(sampling_frequency(seq(as.POSIXct("2010-01-01 12:00:00"),
+#' as.POSIXct("2010-01-02 12:00:00"), by="15 mins")))
+#' 
 sampling_sequence <- function(period)
 {
     # [secs, mins, hrs, days, weeks, months, year]

@@ -1,3 +1,49 @@
+#' Forecast Performance Metrics
+#' 
+#' Functions to calculate a number of performance metrics.
+#' 
+#' 
+#' @aliases mape rmape smape mase mslre mis msis bias wape wslre wse
+#' pinball crps
+#' @param actual the actual values corresponding to the forecast period.
+#' @param predicted the predicted values corresponding to the forecast period.
+#' @param original_series the actual values corresponding to the training
+#' period.
+#' @param frequency the seasonal frequency of the series used in the model.
+#' @param lower the lower distributional forecast for the quantile
+#' corresponsing to the coverage ratio alpha (i.e. alpha/2).
+#' @param upper the upper distributional forecast for the quantile
+#' corresponding to the coverage ratio alpha (i.e. 1 - alpha/2).
+#' @param alpha the distributional coverage.
+#' @param distribution the forecast distribution (returned in the distribution
+#' slot of the prediction object). This is used in the continuous ranked
+#' probability score (crps) of Gneiting et al (2005), and calculated using the
+#' function from the scoringRules package.
+#' @param weights a vector of weights for generating weighted metrics. If the
+#' actual and predicted inputs are univariate, this should be equal to the
+#' length of the actual series and calculates a time weighted average, else the
+#' weights should be of length equal to the number of series in a multivariate
+#' case in which case a cross-sectional average is calculated.
+#' @return A numeric value.
+#' @export
+#' @rdname metrics
+#' @note The bias metric returns the percent bias. The rmape is the rescaled
+#' measure for mape based on the paper by Swanson et al.
+#' @author Alexios Galanos
+#' @references Tofallis (2015). A better measure of relative prediction
+#' accuracy for model selection and model estimation, Journal of the
+#' Operational Research Society \emph{66(8)}, 1352-1362.\cr Hyndman, Rob J and
+#' Koehler, Anne B (2006). Another look at measures of forecast accuracy,
+#' International Journal of Forecasting\emph{22(4)}, 679-688.\cr Gneiting,
+#' Tilmann, Raftery, Adrian E, Westveld, Anton H and Goldman, Tom (2005).
+#' Calibrated Probabilistic Forecasting Using Ensemble Model Output Statistics
+#' and Minimum CRPS Estimation, Monthly Weather Review, \emph{133(5)},
+#' 1098-1118.\cr Gneiting, Tilmann and Raftery, Adrian E (2007). Strictly
+#' proper scoring rules, prediction, and estimation, Journal of the American
+#' statistical Association \emph{102(477)}, 359-378.\cr Swanson, D.A., Tayman,
+#' J. and Bryan, T.M. (2011) MAPE-R: a rescaled measure of accuracy for
+#' cross-sectional subnational population forecasts. J Pop Research \emph{28},
+#' 225–243.
 mape <- function(actual, predicted)
 {
     actual <- as.numeric(actual)
@@ -15,6 +61,8 @@ mape <- function(actual, predicted)
     return(metric)
 }
 
+#' @export
+#' @rdname metrics
 bias <- function(actual, predicted)
 {
     actual <- as.numeric(actual)
@@ -32,6 +80,8 @@ bias <- function(actual, predicted)
     return(metric)
 }
 
+#' @export
+#' @rdname metrics
 mslre <- function(actual, predicted)
 {
     actual <- as.numeric(actual)
@@ -59,6 +109,8 @@ mslre <- function(actual, predicted)
     return(metric)
 }
 
+#' @export
+#' @rdname metrics
 mase <- function(actual, predicted, original_series = NULL, frequency = 1)
 {
     actual <- as.numeric(actual)
@@ -85,6 +137,8 @@ mase <- function(actual, predicted, original_series = NULL, frequency = 1)
     return(metric)
 }
 
+#' @export
+#' @rdname metrics
 mis <- function(actual, lower, upper, alpha)
 {
     actual <- as.numeric(actual)
@@ -107,6 +161,8 @@ mis <- function(actual, lower, upper, alpha)
     return(metric)
 }
 
+#' @export
+#' @rdname metrics
 wape <- function(actual, predicted, weights)
 {
     actual <- as.matrix(actual)
@@ -128,6 +184,8 @@ wape <- function(actual, predicted, weights)
     return(weighted_metric)
 }
 
+#' @export
+#' @rdname metrics
 wslre <- function(actual, predicted, weights)
 {
     actual <- as.matrix(actual)
@@ -148,6 +206,8 @@ wslre <- function(actual, predicted, weights)
     return(weighted_metric)
 }
 
+#' @export
+#' @rdname metrics
 wse <- function(actual, predicted, weights)
 {
     actual <- as.matrix(actual)
@@ -168,6 +228,8 @@ wse <- function(actual, predicted, weights)
     return(weighted_metric)
 }
 
+#' @export
+#' @rdname metrics
 pinball <- function(actual, distribution, alpha = 0.1){
     qtile <- apply(distribution, 2, quantile, q)
     loss <- rep(0, length(actual))
@@ -177,6 +239,8 @@ pinball <- function(actual, distribution, alpha = 0.1){
     return(metric)
 }
 
+#' @export
+#' @rdname metrics
 crps <- function(actual, distribution) 
 {
     metric <- crps_sample(as.numeric(actual), t(distribution))
@@ -196,6 +260,8 @@ rmape <- function(actual, predicted)
     return(metric)
 }
 
+#' @export
+#' @rdname metrics
 smape <- function(actual, predicted)
 {
     actual <- as.numeric(actual)
@@ -204,6 +270,8 @@ smape <- function(actual, predicted)
     return(metric)
 }
 
+#' @export
+#' @rdname metrics
 msis <- function(actual, lower, upper, original_series, frequency = 1, alpha)
 {
     h <- length(upper)

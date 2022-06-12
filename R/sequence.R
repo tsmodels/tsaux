@@ -1,3 +1,16 @@
+#' Generate Regular Interval Future Dates
+#' 
+#' Generates regular interval future dates for use in forecast routine.
+#' 
+#' 
+#' @param start a Date string for the start date.
+#' @param frequency frequency of the interval (daily, weekly, monthly or
+#' yearly).
+#' @param n number of future periods to generate dates for.
+#' @return A Date vector
+#' @export
+#' @rdname future_dates
+#' @author Alexios Galanos
 future_dates <- function(start, frequency, n = 1)
 {
     if (frequency %in% c("days", "weeks", "months","years")) {

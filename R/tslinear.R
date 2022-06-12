@@ -1,4 +1,21 @@
-####################################################
+#' Linear Time Series Filter
+#' 
+#' Provides a quick linear time series filter with trend and seasonality.
+#' 
+#' Estimates a simple linear time series model with trend, seasonal and
+#' regressors.
+#' 
+#' @param y a vector.
+#' @param trend whether to include a linear trend.
+#' @param seasonal whether to include seasonal dummies.
+#' @param xreg an optional matrix of regressors.
+#' @param frequency the frequency of the series (required if seasonal is TRUE).
+#' @param \dots not currently used.
+#' @return An object of class \dQuote{tslinear} which also inherits
+#' \dQuote{lm}.
+#' @export
+#' @rdname tslinear
+#' @author Alexios Galanos
 tslinear = function(y, trend = FALSE, seasonal = FALSE, xreg = NULL, frequency = 1, ...)
 {
     if (NCOL(y) != 1) stop("\nonly univariate series allowed for y")
@@ -55,14 +72,14 @@ tslinear = function(y, trend = FALSE, seasonal = FALSE, xreg = NULL, frequency =
     return(fit)
 }
 
-check_xreg = function(xreg, valid.index)
+check_xreg = function(xreg, valid_index)
 {
     if (is.null(xreg)) return(xreg)
-    n <- length(valid.index)
+    n <- length(valid_index)
     if (NROW(xreg) != n) {
         stop("\nxreg does not have the same number of rows as y")
     }
-    if (!all.equal(index(xreg),valid.index)) {
+    if (!all.equal(index(xreg), valid_index)) {
         stop("\nxreg time index does not match that of y")
     }
     if (any(is.na(xreg))) {

@@ -1,3 +1,22 @@
+#' Simple Seasonality Test
+#' 
+#' Checks for the presence of seasonality based on the QS test of Gomez and
+#' Maravall (1996).
+#' 
+#' Given the identified frequency of the xts vector (using the
+#' \code{\link{sampling_frequency}}), the function checks for seasonality at
+#' that frequency. The frequency can be overridden by directly supplying a
+#' frequency argument, in which case y does not need to be a xts vector.
+#' 
+#' @param x an (xts) vector (usually of a stationary series).
+#' @param frequency overrides any frequency automatically identified in the
+#' index of x.
+#' @return Logical.
+#' @export
+#' @rdname seasonality_test
+#' @author Alexios Galanos
+#' @references Gomez, Victor and Maravall, Agustin, \emph{Programs TRAMO and
+#' SEATS}, 1986.
 seasonality_test <- function(x, frequency = NULL){
     # Based on the QS test (Gomez  and  Maravall  1996)
     if (is.null(frequency)) {
@@ -23,6 +42,21 @@ seasonality_test <- function(x, frequency = NULL){
     return(test_seasonal)
 }
 
+
+
+#' Fourier terms for modelling seasonality
+#' 
+#' Returns a matrix containing terms from a Fourier series, up to order K
+#' 
+#' 
+#' @param dates a Date vector representing the length of the series for which
+#' the fourier terms are required.
+#' @param period frequency of the underlying series, if NULL will try to
+#' infer it from the difference in the Date vector.
+#' @param K maximum order of the Fourier terms.
+#' @return A matrix of size N (length of dates) by 2*K.
+#' @export
+#' @rdname fourier_series
 fourier_series <- function(dates, period = NULL, K = NULL) {
     N <- length(dates)
     if (is.character(period) | is.null(period)) {
@@ -74,6 +108,26 @@ fourier_series <- function(dates, period = NULL, K = NULL) {
     return(design)
 }
 
+
+
+#' Seasonal Dummies
+#' 
+#' Creates a matrix of seasonal dummies.
+#' 
+#' Generates seasons-1 dummy variables.
+#' 
+#' @param y optional data series.
+#' @param n if y is missing, then the length of the series is required.
+#' @param seasons number of seasons in a cycle.
+#' @return Either a matrix (if y is missing or y is not an xts vector) or an
+#' xts matrix (when y is an xts vector).
+#' @export
+#' @rdname seasonal_dummies
+#' @author Alexios Galanos
+#' @examples
+#' 
+#' head(seasonal_dummies(n=100, seasons=12))
+#' 
 seasonal_dummies <- function(y = NULL, n = nrow(y), seasons = 12)
 {
     if (is.null(y)) {
