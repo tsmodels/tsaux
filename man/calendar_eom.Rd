@@ -4,10 +4,12 @@
 \alias{calendar_eom}
 \title{End of Month Date}
 \usage{
-calendar_eom(date)
+calendar_eom(date, ...)
 }
 \arguments{
 \item{date}{a Date vector}
+
+\item{\dots}{not used}
 }
 \value{
 Date object

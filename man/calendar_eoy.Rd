@@ -4,10 +4,12 @@
 \alias{calendar_eoy}
 \title{End of Year Date}
 \usage{
-calendar_eoy(date)
+calendar_eoy(date, ...)
 }
 \arguments{
 \item{date}{a Date vector}
+
+\item{\dots}{not used}
 }
 \value{
 Date object

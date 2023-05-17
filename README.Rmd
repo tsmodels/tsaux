@@ -23,4 +23,4 @@ knitr::opts_chunk$set(
 
 # tsaux
 General purpose calendar and auxiliary functions for **tsmodels** packages, 
-including outlier detection and transformations.
+including outlier detection, transformations and calendar functions.

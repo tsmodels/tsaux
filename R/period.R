@@ -105,11 +105,11 @@ calendar_eoy <- function(date, ...) {
 #' Ceiling, Floor and Other operations on a POSIXct object
 #' 
 #' @param x a POSIXct vector
-#' @param second_precision the precision ini seconds on which the processing operates on
+#' @param second_precision the precision in seconds on which the processing operates on
 #' @param method the method for processing
 #' @param \dots not used
 #' @return POSIXct object
-#' @example 
+#' @examples 
 #' # end of hour
 #' process_time(as.POSIXct('2022-08-03 03:00:01', tz = 'UTC'), 3600, method = ceiling)
 #' # start of hour

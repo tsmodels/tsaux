@@ -37,7 +37,10 @@ future_dates <- function(start, frequency, n = 1)
 #' @param by every how many periods to split on
 #' @param window_size the size of the training set (for moving window). If NULL 
 #' will use an expanding window.
-#' @param calendar_split 
+#' @param calendar_end an optional function to use for the period ending split,
+#' such as \code{\link{calendar_eow}}, applied to x. This should be greater in 
+#' frequency than the underlying frequency of x (i.e. do not use calendar_eow on
+#' monthly indices). This overwrites the use of window_size.
 #' @param complete_index whether to return the full indices for train and test else
 #' just the start and end indices.
 #' @param \dots any additional parameters passed to the calendar_end function. For 
@@ -47,14 +50,15 @@ future_dates <- function(start, frequency, n = 1)
 #' these. For splitting into mins or hours, x must also have this resolution else
 #' will throw an error. Additionally, the strict requirement of regularly spaced
 #' time is required (no gaps).
-#' @export
 #' @rdname time_splits
 #' @author Alexios Galanos
+#' @export
 #' 
 time_splits <- function(x, start, test_length = 1, by = test_length, 
                         window_size = NULL, calendar_end = NULL, 
                         complete_index = TRUE, ...)
 {
+    period_end <- NULL
     if (!is.null(calendar_end)) {
         d <- data.table(index = x)
         d[,period_end := calendar_end(index, ...)]

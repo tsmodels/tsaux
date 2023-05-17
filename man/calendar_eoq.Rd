@@ -4,10 +4,12 @@
 \alias{calendar_eoq}
 \title{End of Quarter Date}
 \usage{
-calendar_eoq(date)
+calendar_eoq(date, ...)
 }
 \arguments{
 \item{date}{a Date vector}
+
+\item{\dots}{not used}
 }
 \value{
 Date object

@@ -4,12 +4,14 @@
 \alias{calendar_eow}
 \title{End of Week Date}
 \usage{
-calendar_eow(date, day = 7)
+calendar_eow(date, day = 7, ...)
 }
 \arguments{
 \item{date}{a Date vector}
 
 \item{day}{a value between 1 (Monday) and 7 (Sunday).}
+
+\item{\dots}{not used}
 }
 \value{
 Date object
