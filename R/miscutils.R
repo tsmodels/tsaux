@@ -116,7 +116,7 @@ check_newxreg <- function(newdata, xnames, h = 1, forc_dates = NULL)
 
 make.xts <- function(y, index)
 {
-  if(inherits(index ,"Date") | inherits(index, "POSIXct")) {
+  if (inherits(index ,"Date") | inherits(index, "POSIXct")) {
     y <- xts(coredata(y), index)
   } else{
     y <- coredata(y)
