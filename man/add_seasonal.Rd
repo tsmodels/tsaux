@@ -2,12 +2,12 @@
 % Please edit documentation in R/simulator.R
 \name{add_seasonal}
 \alias{add_seasonal}
-\alias{add_seasonal.tsissm.component}
+\alias{add_seasonal.issm.component}
 \title{Seasonal Trend Component}
 \usage{
 add_seasonal(x, ...)
 
-\method{add_seasonal}{tsissm.component}(
+\method{add_seasonal}{issm.component}(
   x,
   frequency = 12,
   gamma = 0.01,
@@ -19,7 +19,7 @@ add_seasonal(x, ...)
 )
 }
 \arguments{
-\item{x}{an object of class tsissm.component or other supported class.}
+\item{x}{an object of class issm.component or other supported class.}
 
 \item{...}{additional parameters.}
 
@@ -37,7 +37,7 @@ method of Roberts and McKenzie. This is applied only to a single seasonal freque
 \item{init_scale}{the scaling multiplier for s0 (when this is not provided).}
 }
 \value{
-An object of class tsissm.component updated with the seasonal
+An object of class issm.component updated with the seasonal
 component.
 }
 \description{

@@ -2,22 +2,22 @@
 % Please edit documentation in R/simulator.R
 \name{add_custom}
 \alias{add_custom}
-\alias{add_custom.tsissm.component}
+\alias{add_custom.issm.component}
 \title{Custom Component}
 \usage{
 add_custom(x, ...)
 
-\method{add_custom}{tsissm.component}(x, custom = NULL, ...)
+\method{add_custom}{issm.component}(x, custom = NULL, ...)
 }
 \arguments{
-\item{x}{an object of class tsissm.component or other supported class.}
+\item{x}{an object of class issm.component or other supported class.}
 
 \item{...}{additional parameters.}
 
 \item{custom}{a matrix of custom components}
 }
 \value{
-An object of class tsissm.component updated with the custom
+An object of class issm.component updated with the custom
 components.
 }
 \description{

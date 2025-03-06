@@ -2,15 +2,15 @@
 % Please edit documentation in R/simulator.R
 \name{add_transform}
 \alias{add_transform}
-\alias{add_transform.tsissm.component}
+\alias{add_transform.issm.component}
 \title{Transform}
 \usage{
 add_transform(x, ...)
 
-\method{add_transform}{tsissm.component}(x, method = "box-cox", lambda = 1, lower = 0, upper = 1, ...)
+\method{add_transform}{issm.component}(x, method = "box-cox", lambda = 1, lower = 0, upper = 1, ...)
 }
 \arguments{
-\item{x}{an object of class tsissm.component or other supported class.}
+\item{x}{an object of class issm.component or other supported class.}
 
 \item{...}{additional parameters.}
 
@@ -23,7 +23,7 @@ add_transform(x, ...)
 \item{upper}{the upper bound for the transform.}
 }
 \value{
-An object of class tsissm.component updated with the transformation.
+An object of class issm.component updated with the transformation.
 }
 \description{
 Transform

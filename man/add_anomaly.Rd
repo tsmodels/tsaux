@@ -2,15 +2,15 @@
 % Please edit documentation in R/simulator.R
 \name{add_anomaly}
 \alias{add_anomaly}
-\alias{add_anomaly.tsissm.component}
+\alias{add_anomaly.issm.component}
 \title{Anomaly Component}
 \usage{
 add_anomaly(x, ...)
 
-\method{add_anomaly}{tsissm.component}(x, time = NULL, delta = 0, ratio = 0.5, ...)
+\method{add_anomaly}{issm.component}(x, time = NULL, delta = 0, ratio = 0.5, ...)
 }
 \arguments{
-\item{x}{an object of class tsissm.component or other supported class.}
+\item{x}{an object of class issm.component or other supported class.}
 
 \item{...}{additional parameters.}
 
@@ -26,7 +26,7 @@ value of 1 means that the anomaly will jump by 100 percent compared to the
 data series.}
 }
 \value{
-An object of class tsissm.component updated with the anomaly
+An object of class issm.component updated with the anomaly
 component.
 }
 \description{

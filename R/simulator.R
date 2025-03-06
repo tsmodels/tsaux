@@ -97,13 +97,13 @@ initialize_simulator <- function(x, index = NULL, sampling = NULL, model = "issm
     }
     components_table <- data.table(component = "error", type = "irregular", start = 2, include = TRUE, parameter = "sigma", value = sd(x))
     L <- list(components = M, simulated = simulated, n = n, table = components_table, index = index, sampling = sampling)
-    class(L) <- c(switch(model[1], "issm" = "tsissm.component"), "tssim.component")
+    class(L) <- c(switch(model[1], "issm" = "issm.component"), "tssim.component")
     return(L)
 }
 
 #' Polynomial Trend Component
 #'
-#' @param x an object of class tsissm.component or other supported class.
+#' @param x an object of class issm.component or other supported class.
 #' @param order the order of the polynomial (min 1 and max 2).
 #' @param alpha the decay coefficient on the error of the level.
 #' @param beta the decay coefficient on the error of the slope.
@@ -111,15 +111,15 @@ initialize_simulator <- function(x, index = NULL, sampling = NULL, model = "issm
 #' @param l0 initial level.
 #' @param b0 initial slope.
 #' @param ... additional parameters.
-#' @return An object of class tsissm.component updated with the polynomial trend
+#' @return An object of class issm.component updated with the polynomial trend
 #' component.
-#' @method add_polynomial tsissm.component
+#' @method add_polynomial issm.component
 #' @aliases add_polynomial
 #' @rdname add_polynomial
 #' @export
 #'
 #'
-add_polynomial.tsissm.component <- function(x, order = 1, alpha = 0.1, beta = 0.01, phi = 1.0, l0 = 100, b0 = 1.0, ...)
+add_polynomial.issm.component <- function(x, order = 1, alpha = 0.1, beta = 0.01, phi = 1.0, l0 = 100, b0 = 1.0, ...)
 {
     # this component allows replacement in order to re-run in the presence
     # of seasonal normalization (which requires an adjustment to the dynamics)
@@ -207,7 +207,7 @@ initialize_seasonal_states <- function(frequency, error, scale_factor = 1, rough
 
 #' Seasonal Trend Component
 #'
-#' @param x an object of class tsissm.component or other supported class.
+#' @param x an object of class issm.component or other supported class.
 #' @param frequency seasonal frequency.
 #' @param gamma the decay coefficient on the error of the seasonal component
 #' @param s0 a vector of length frequency - 1 for the initial seasonal component.
@@ -216,15 +216,15 @@ initialize_seasonal_states <- function(frequency, error, scale_factor = 1, rough
 #' method of Roberts and McKenzie. This is applied only to a single seasonal frequency.
 #' @param init_scale the scaling multiplier for s0 (when this is not provided).
 #' @param ... additional parameters.
-#' @return An object of class tsissm.component updated with the seasonal
+#' @return An object of class issm.component updated with the seasonal
 #' component.
-#' @method add_seasonal tsissm.component
+#' @method add_seasonal issm.component
 #' @aliases add_seasonal
 #' @rdname add_seasonal
 #' @export
 #'
 #'
-add_seasonal.tsissm.component <- function(x, frequency = 12, gamma = 0.01, s0 = NULL,
+add_seasonal.issm.component <- function(x, frequency = 12, gamma = 0.01, s0 = NULL,
                                           init_harmonics = frequency/2,
                                           normalized_seasonality = TRUE,
                                           init_scale = 1, ...)
@@ -248,7 +248,7 @@ add_seasonal.tsissm.component <- function(x, frequency = 12, gamma = 0.01, s0 = 
                 phi <- x$table[component == "dampening"]$value
                 beta <- x$table[component == "slope"]$value
             }
-            x <- add_polynomial.tsissm.component(x, order = order, alpha = alpha, beta = beta, phi = phi, l0 = l0, b0 = b0,
+            x <- add_polynomial.issm.component(x, order = order, alpha = alpha, beta = beta, phi = phi, l0 = l0, b0 = b0,
                                                  check_bounds = TRUE, a = gamma/frequency * e)
         }
     }
@@ -285,21 +285,21 @@ add_seasonal.tsissm.component <- function(x, frequency = 12, gamma = 0.01, s0 = 
 
 #' ARMA Component
 #'
-#' @param x an object of class tsissm.component or other supported class.
+#' @param x an object of class issm.component or other supported class.
 #' @param order the ar and ma orders.
 #' @param ar a vector of ar coefficients.
 #' @param ma a vector of ma coefficients.
 #' @param mu the mean parameter (defaults to zero) of the ARMA process.
 #' @param ... additional parameters.
-#' @return An object of class tsissm.component updated with the ARMA
+#' @return An object of class issm.component updated with the ARMA
 #' component.
-#' @method add_arma tsissm.component
+#' @method add_arma issm.component
 #' @aliases add_arma
 #' @rdname add_arma
 #' @export
 #'
 #'
-add_arma.tsissm.component <- function(x, order = c(0,0), ar = 0, ma = 0, mu = 0, ...)
+add_arma.issm.component <- function(x, order = c(0,0), ar = 0, ma = 0, mu = 0, ...)
 {
     if (any(x$table$component == "arma")) stop("\narma component already exists.")
     if (length(order) != 2) stop("\norder must be a vector of length 2")
@@ -341,19 +341,19 @@ add_arma.tsissm.component <- function(x, order = c(0,0), ar = 0, ma = 0, mu = 0,
 
 #' Regressor Component
 #'
-#' @param x an object of class tsissm.component or other supported class.
+#' @param x an object of class issm.component or other supported class.
 #' @param xreg a matrix of regressors.
 #' @param pars regressors coefficients.
 #' @param ... additional parameters.
-#' @return An object of class tsissm.component updated with the regressor
+#' @return An object of class issm.component updated with the regressor
 #' components.
-#' @method add_regressor tsissm.component
+#' @method add_regressor issm.component
 #' @aliases add_regressor
 #' @rdname add_regressor
 #' @export
 #'
 #'
-add_regressor.tsissm.component <- function(x, xreg = NULL, pars = NULL, ...)
+add_regressor.issm.component <- function(x, xreg = NULL, pars = NULL, ...)
 {
     if (is.null(xreg)) return(x)
     if (is.null(pars)) stop("\npars cannot be NULL")
@@ -389,18 +389,18 @@ add_regressor.tsissm.component <- function(x, xreg = NULL, pars = NULL, ...)
 
 #' Custom Component
 #'
-#' @param x an object of class tsissm.component or other supported class.
+#' @param x an object of class issm.component or other supported class.
 #' @param custom a matrix of custom components
 #' @param ... additional parameters.
-#' @return An object of class tsissm.component updated with the custom
+#' @return An object of class issm.component updated with the custom
 #' components.
-#' @method add_custom tsissm.component
+#' @method add_custom issm.component
 #' @aliases add_custom
 #' @rdname add_custom
 #' @export
 #'
 #'
-add_custom.tsissm.component <- function(x, custom = NULL, ...)
+add_custom.issm.component <- function(x, custom = NULL, ...)
 {
     if (is.null(custom)) return(x)
     n <- x$n
@@ -433,14 +433,14 @@ add_custom.tsissm.component <- function(x, custom = NULL, ...)
 
 #' Transform
 #'
-#' @param x an object of class tsissm.component or other supported class.
+#' @param x an object of class issm.component or other supported class.
 #' @param method a valid transform.
 #' @param lambda the Box-Cox parameter.
 #' @param lower the lower bound for the transform.
 #' @param upper the upper bound for the transform.
 #' @param ... additional parameters.
-#' @return An object of class tsissm.component updated with the transformation.
-#' @method add_transform tsissm.component
+#' @return An object of class issm.component updated with the transformation.
+#' @method add_transform issm.component
 #' @aliases add_transform
 #' @details The inverse transform is applied to the simulated series. Valid methods
 #' are the \dQuote{box-cox}, \dQuote{logit}, \dQuote{softplus-logit} and \dQuote{sigmoid}
@@ -449,7 +449,7 @@ add_custom.tsissm.component <- function(x, custom = NULL, ...)
 #' @export
 #'
 #'
-add_transform.tsissm.component <- function(x, method = "box-cox", lambda = 1, lower = 0, upper = 1, ...)
+add_transform.issm.component <- function(x, method = "box-cox", lambda = 1, lower = 0, upper = 1, ...)
 {
     if (any(x$table$type == "transform")) stop("\ntransform already included in object.")
     if (method == "box-cox") {
@@ -471,10 +471,10 @@ add_transform.tsissm.component <- function(x, method = "box-cox", lambda = 1, lo
 
 #' State Decomposition
 #'
-#' @param object an object of class tsissm.component or other supported class.
+#' @param object an object of class issm.component or other supported class.
 #' @param ... additional parameters.
 #' @return A matrix of the simplified state decomposition.
-#' @method tsdecompose tsissm.component
+#' @method tsdecompose issm.component
 #' @details Creates a simplified decomposition of the states and aligns their
 #' time indices so that the sum up to the simulated component per period.
 #' @aliases tsdecompose
@@ -482,7 +482,7 @@ add_transform.tsissm.component <- function(x, method = "box-cox", lambda = 1, lo
 #' @export
 #'
 #'
-tsdecompose.tsissm.component <- function(object, ...)
+tsdecompose.issm.component <- function(object, ...)
 {
     components <- object$components
     cnames <- colnames(components)
@@ -526,16 +526,16 @@ tsdecompose.tsissm.component <- function(object, ...)
 
 #' Plot Simulation Object
 #'
-#' @param x an object of class tsissm.component or other supported class.
+#' @param x an object of class issm.component or other supported class.
 #' @param y the type of output to plot.
 #' @param ... additional parameters passed to the \code{\link{plot.zoo}} function.
-#' @method plot tsissm.component
+#' @method plot issm.component
 #' @aliases plot
 #' @rdname plot
 #' @export
 #'
 #'
-plot.tsissm.component <- function(x, y = c("simulated","components"), ...)
+plot.issm.component <- function(x, y = c("simulated","components"), ...)
 {
     y <- match.arg(y[1], c("simulated","components"))
     if (y == "simulated") {
@@ -553,17 +553,17 @@ plot.tsissm.component <- function(x, y = c("simulated","components"), ...)
 
 #' Add Connected Line Segments to a Simulation Object
 #'
-#' @param x an object of class tsissm.component or other supported class.
+#' @param x an object of class issm.component or other supported class.
 #' @param y not used.
 #' @param type character indicating the type of plotting.
 #' @param ... additional parameters passed to the lines function.
-#' @method lines tsissm.component
+#' @method lines issm.component
 #' @aliases lines
 #' @rdname lines
 #' @export
 #'
 #'
-lines.tsissm.component <- function(x, y = NULL, type = "l", ...)
+lines.issm.component <- function(x, y = NULL, type = "l", ...)
 {
     s <- x$simulated
     if (!is.null(x$index)) {
@@ -575,7 +575,7 @@ lines.tsissm.component <- function(x, y = NULL, type = "l", ...)
 
 #' Anomaly Component
 #'
-#' @param x an object of class tsissm.component or other supported class.
+#' @param x an object of class issm.component or other supported class.
 #' @param time the numeric index of when the anomaly occurs. If NULL, a ranom
 #' time will be chosen.
 #' @param delta the autoregressive component determining the type of anomaly. A
@@ -585,15 +585,15 @@ lines.tsissm.component <- function(x, y = NULL, type = "l", ...)
 #' value of 1 means that the anomaly will jump by 100 percent compared to the
 #' data series.
 #' @param ... additional parameters.
-#' @return An object of class tsissm.component updated with the anomaly
+#' @return An object of class issm.component updated with the anomaly
 #' component.
-#' @method add_anomaly tsissm.component
+#' @method add_anomaly issm.component
 #' @aliases add_anomaly
 #' @rdname add_anomaly
 #' @export
 #'
 #'
-add_anomaly.tsissm.component <- function(x, time = NULL, delta = 0, ratio = 0.5, ...)
+add_anomaly.issm.component <- function(x, time = NULL, delta = 0, ratio = 0.5, ...)
 {
     n <- 1:x$n
     if (!is.null(x$extra$anomaly_times)) {

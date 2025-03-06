@@ -2,15 +2,15 @@
 % Please edit documentation in R/simulator.R
 \name{add_arma}
 \alias{add_arma}
-\alias{add_arma.tsissm.component}
+\alias{add_arma.issm.component}
 \title{ARMA Component}
 \usage{
 add_arma(x, ...)
 
-\method{add_arma}{tsissm.component}(x, order = c(0, 0), ar = 0, ma = 0, mu = 0, ...)
+\method{add_arma}{issm.component}(x, order = c(0, 0), ar = 0, ma = 0, mu = 0, ...)
 }
 \arguments{
-\item{x}{an object of class tsissm.component or other supported class.}
+\item{x}{an object of class issm.component or other supported class.}
 
 \item{...}{additional parameters.}
 
@@ -23,7 +23,7 @@ add_arma(x, ...)
 \item{mu}{the mean parameter (defaults to zero) of the ARMA process.}
 }
 \value{
-An object of class tsissm.component updated with the ARMA
+An object of class issm.component updated with the ARMA
 component.
 }
 \description{

@@ -2,12 +2,12 @@
 % Please edit documentation in R/simulator.R
 \name{add_polynomial}
 \alias{add_polynomial}
-\alias{add_polynomial.tsissm.component}
+\alias{add_polynomial.issm.component}
 \title{Polynomial Trend Component}
 \usage{
 add_polynomial(x, ...)
 
-\method{add_polynomial}{tsissm.component}(
+\method{add_polynomial}{issm.component}(
   x,
   order = 1,
   alpha = 0.1,
@@ -19,7 +19,7 @@ add_polynomial(x, ...)
 )
 }
 \arguments{
-\item{x}{an object of class tsissm.component or other supported class.}
+\item{x}{an object of class issm.component or other supported class.}
 
 \item{...}{additional parameters.}
 
@@ -36,7 +36,7 @@ add_polynomial(x, ...)
 \item{b0}{initial slope.}
 }
 \value{
-An object of class tsissm.component updated with the polynomial trend
+An object of class issm.component updated with the polynomial trend
 component.
 }
 \description{
