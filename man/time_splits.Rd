@@ -6,7 +6,7 @@
 \usage{
 time_splits(
   x,
-  start,
+  start = x[1],
   test_length = 1,
   by = test_length,
   window_size = NULL,
@@ -24,18 +24,18 @@ time_splits(
 
 \item{by}{every how many periods to split on}
 
-\item{window_size}{the size of the training set (for moving window). If NULL 
+\item{window_size}{the size of the training set (for moving window). If NULL
 will use an expanding window.}
 
 \item{calendar_end}{an optional function to use for the period ending split,
-such as \code{\link{calendar_eow}}, applied to x. This should be greater in 
+such as \code{\link{calendar_eow}}, applied to x. This should be greater in
 frequency than the underlying frequency of x (i.e. do not use calendar_eow on
 monthly indices). This overwrites the use of window_size.}
 
 \item{complete_index}{whether to return the full indices for train and test else
 just the start and end indices.}
 
-\item{\dots}{any additional parameters passed to the calendar_end function. For 
+\item{\dots}{any additional parameters passed to the calendar_end function. For
 example, the \dQuote{day} argument when using the calendar_eow function.}
 }
 \value{
@@ -45,7 +45,7 @@ A list with each slot having the training dates and test dates
 Generates train/test splits given a vector of dates and other options
 }
 \note{
-For months, quarters and years this will split into the end date of 
+For months, quarters and years this will split into the end date of
 these. For splitting into mins or hours, x must also have this resolution else
 will throw an error. Additionally, the strict requirement of regularly spaced
 time is required (no gaps).

@@ -2,19 +2,9 @@
 % Please edit documentation in R/transform.R
 \name{box_cox}
 \alias{box_cox}
-\alias{auto_lambda}
 \title{Box-Cox transform specification}
 \usage{
 box_cox(lambda = NA, lower = 0, upper = 1.5, multivariate = FALSE, ...)
-
-auto_lambda(
-  y,
-  lower = 0,
-  upper = 1,
-  nonseasonal_length = 2,
-  frequency = 1,
-  ...
-)
 }
 \arguments{
 \item{lambda}{the power parameters. If NA then it will automatically
@@ -37,21 +27,12 @@ parameter, then that is applied to all series (including NA which results in
 the multivariate transformation described above).}
 
 \item{...}{not currently used.}
-
-\item{y}{an xts vector of strictly positive values.}
-
-\item{nonseasonal_length}{measurement periodicity of the data. The
-maximum of this or the frequency argument is taken when calculating the
-optimal lambda.}
-
-\item{frequency}{seasonal period of the data.}
 }
 \value{
-A list with the transform and invtransform functions. For the
-auto_lambda function the optimal lambda is returned.
+A list with the transform and inverse functions.
 }
 \description{
-Creates a specification for the Box Cox transformtion.
+Creates a specification for the Box Cox transformation.
 }
 \details{
 The function returns a list of 2 functions called \dQuote{transform} and
@@ -59,6 +40,12 @@ The function returns a list of 2 functions called \dQuote{transform} and
 calculate the transformed values. It is meant to be used in the transform
 argument of the model specifications in the ts universe of models. The
 auto_lambda function uses the method of Guerrero(1993).
+}
+\note{
+The returned transform function will take additional argument \dQuote{frequency}
+which determines whether a series is seasonal or not. When estimating lambda (when
+setting this to NA), a series with frequency > 1 will first be de-seasonalized
+using an STL decomposition.
 }
 \examples{
 
@@ -70,12 +57,9 @@ ye = B$inverse(yt, lambda)
 
 }
 \references{
-Box, G. E. P. and Cox, D. R. (1964),\emph{An analysis of
-transformations}. JRSS B \bold{26} 211--246.\cr Guerrero, V.M. (1993),
-\emph{Time-series analysis supported by power transformations}. Journal of
-Forecasting, \bold{12}, 37--48.\cr Velilla, S. (1993), \emph{A note on the
-multivariate Box-Cox transformation to normality}. Statistics and
-Probability Letters, \bold{17}, 259-263.
+\insertRef{Box1964}{tsaux}\cr
+\insertRef{Velilla1993}{tsaux}\cr
+\insertRef{Guerrero1993}{tsaux}\cr
 }
 \author{
 Alexios Galanos for the BoxCox function.\cr John Fox for the

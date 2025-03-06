@@ -1,0 +1,573 @@
+---
+title: "Auxilliary Time Series Functions"
+output: 
+    rmarkdown::html_vignette:
+        css: custom.css
+        code_folding: hide
+        citation_package: natbib
+        toc: yes
+        urlcolor: PineGreen
+toccolor: PineGreen
+bibliography: references.bib
+bibliography-style: apalike
+natbiboptions: round
+vignette: >
+  %\VignetteIndexEntry{Auxilliary Time Series Functions}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Introduction
+
+The **tsaux** package provides a number of auxiliary functions, useful in time
+series estimation and forecasting. The functions in the package are grouped into
+the following 6 areas:
+
+
+```{r setup,echo=FALSE,message=FALSE,warning=FALSE}
+library(knitr)
+library(tsaux)
+library(xts)
+library(zoo)
+library(kableExtra)
+function_groups <- data.frame(
+  Group = c(
+    "Anomalies",
+    "Calendar/Time",
+    "Metrics",
+    "Simulation",
+    "Transformations",
+    "Miscellaneous"
+  ),
+  Description = c(
+    "Anomaly detection",
+    "Inference and conversion utilities for time/dates", 
+    "Performance metrics for point and distributional forecasts",
+    "Simulation by parts including Trend, Seasonal, ARMA, Irregular and Anomalies",
+    "Data transformations including Box-Cox, Logit, Softplus-Logit and Sigmoid",
+    "Miscellaneous functions"
+  )
+)
+
+function_groups |> kable(format = "html", escape = FALSE, align = "l", caption = "Function Groups") |>
+  kable_styling(font_size = 10, bootstrap_options = c("striped", "hover", "responsive"), full_width = FALSE)
+```
+
+The next sections provide an introduction and short demo of the functionality.
+
+
+## Anomaly Generation and Detection
+
+Large spikes in data series have typically been associated with the term
+outliers. These lead to contamination of normal process variation under 
+most types of dynamics and is therefore the type of anomaly which is most 
+general across different types of data generating mechanisms.
+
+While such spikes usually decay almost instantaneously, others may decay
+at a slower pace (temporary shifts) and some may even be permanent
+(level shifts). One generating mechanism for these anomalies if through
+a recursive AR(1) filter. The figure below shows an example of how such
+anomalies can be generated with different decay rates. The *half-life*
+of the decay of such shocks can be easily derived from the theory on
+ARMA processes and is equal to
+$-\text{ln}\left(2\right)/\text{ln}\left(\alpha\right)$, where $\alpha$
+is the AR(1) coefficient. Thus, the closer this gets to 1, the closer
+the shock becomes permanent whereas a coefficient close to 0 is
+equivalent to an instantaneous decay.
+
+```{r,highlight=TRUE,fig.width=6, fig.height=3}
+x <- rep(0, 100)
+x[50] <- 1
+oldpar <- par(mfrow = c(1,1))
+par(mar = c(2,2,1,1), cex.main = 0.8, cex.axis = 0.8, cex.lab = 0.8)
+plot(filter(x, filter = 0, method = "recursive", init = 0), ylab = "", xlab = "")
+lines(filter(x, filter = 0.5, method = "recursive", init = 0), col = 2, lty = 2)
+lines(filter(x, filter = 0.8, method = "recursive", init = 0), col = "orange", lty = 2)
+lines(filter(x, filter = 1, method = "recursive", init = 0), col = 3, lty = 3, lwd = 2)
+grid()
+legend("topleft", c("Additive Outlier (alpha = 0.0)",
+                    "Temporary Change (alpha = 0.5)",
+                    "Temporary Change (alpha = 0.8)",
+                    "Permanent Shift (alpha = 1.0)"), cex = 0.8,
+       lty = c(1,2,2,3), bty = "n", col = c(1,2,"orange",3))
+par(oldpar)
+```
+
+Identifying different types of anomalies is usually undertaken as an integrated 
+part of the assumed dynamics of the process. An established and flexible framework 
+for forecasting economic time series is the state space model, or one of its 
+many variants. For example, the basic structural time series model of 
+[@Harvey1990] is a state of the art approach to econometric forecasting, 
+decomposing a series into a number of independent unobserved structural components:
+
+$$
+\begin{aligned}
+y_t  &= \mu_t + \gamma_t + \varepsilon_t,\quad &\varepsilon_t\sim N(0,\sigma)\\
+\mu_t &=\mu_{t-1} + \beta_{t-1} + \eta_t,\quad &\eta_t\sim N(0,\sigma_\eta)\\
+\beta_t &= \beta_{t_1} + \zeta_t,\quad &\zeta_t\sim N(0,\sigma_\zeta)\\
+\gamma_t &= - \sum^{s-1}_{j=1}\gamma_{t-j} + \omega_t,\quad &\omega_t\sim N(0,\sigma_\omega)\\
+\end{aligned}    
+$$
+
+which uses random walk dynamics for the level, slope and seasonal components, 
+each with independent noise components. Variations to this model include the 
+innovations state space model which assumes fully correlated components and 
+is observationally equivalent to this model but does not require the use of 
+the Kalman filter since it starts from a steady state equilibrium value for the
+Kalman Gain (G) and hence optimizing the log likelihood is
+somewhat simpler and faster. In this structural time series representation, 
+additive outliers can be identified by spikes in the observation equation; 
+level shifts by outliers in the level equation; and a large change in the slope 
+as an outlier in the slope equation (and similar logic applies to the seasonal
+equation). Therefore, testing for such outliers in each of the
+disturbance smoother errors of the models can form the basis for the
+identification of anomalies in the series (see [@deJong1998]).
+
+Direct equivalence between a number of different variations of this
+model and the more well known ARIMA model have been established. In the
+ARIMA framework, a key method for the identification of anomalies is
+based on the work of [@Chen1993], and is the one we use in our
+approach. This approach uses multi-pass identification and elimination steps 
+based on automatic model selection to identify the best anomaly candidates 
+(and types of candidates) based on information criteria. This is a computationally 
+demanding approach, particularly in the presence of multiple components and 
+long time series data sets. As such, we have implemented a slightly modified 
+and faster approach, as an additional option, which first identifies and removes 
+large spikes using a robust STL decomposition and MAD criterion, then 
+de-seasonalizes and detrends this cleaned data again using a robust STL 
+decomposition, before finally passing the irregular component to the method of
+[@Chen1993], as implemented in the [tsoutliers](https://CRAN.R-project.org/package=tsoutliers) 
+package. Finally, the outliers from the first stage are combined with the anomalies identified
+in the last step (and duplicates removed), together with all estimated
+coefficients on these anomalies which can then be used to clean the
+data. The **tsaux** package provides 2 functions: `auto_regressors`
+automatically returns the identified anomalies, their types and
+coefficients, whilst `auto_clean` automatically performs the data
+cleaning step. The functions allow for the use of the modified approach
+as well as the direct approach of passing the data to the 
+[tso](https://www.rdocumentation.org/packages/tsoutliers/versions/0.6-10/topics/tso)
+function.
+
+One shortcoming of the current approach is that for temporary change
+identification, the AR coefficient defaults to 0.7 and there is no
+search performed on other parameters. Adapting the method to search over
+different values is left for future research.
+
+We start with an illustration of data simulation and contamination. Starting with a
+simulated monthly series of level + slope + seasonal, we then 
+proceed to contaminate it with outliers, temporary changes and level shifts.
+
+```{r,highlight=T,fig.width=6, fig.height=4}
+set.seed(154)
+r <- rnorm(300, mean = 0, sd = 6)
+d <- seq(as.Date("2000-01-01"), by = "months", length.out = 300)
+mod <- initialize_simulator(r, index = d, sampling = "months", model = "issm")
+mod <- mod |> add_polynomial(order = 2, alpha = 0.22, beta = 0.01, b0 = 1, l0 = 140)
+mod <- mod |> add_seasonal(frequency = 12, gamma = 0.7, init_scale = 2)
+y <- xts(mod$simulated, mod$index)
+oldpar <- par(mfrow = c(1,1))
+par(mfrow = c(2, 2), mar = c(2,2,1,1), cex.main = 0.8, cex.axis = 0.8, cex.lab = 0.8)
+plot(as.zoo(y), main = "Original", ylab = "", xlab = "", col = "blue")
+grid()
+y_contaminated <- y |> additive_outlier(time = 25, parameter = 1)
+plot(as.zoo(y_contaminated), main = "+Additive Outlier[t=25]",  ylab = "", xlab = "", col = "green")
+grid()
+y_contaminated <- y_contaminated |> temporary_change(time = 120, parameter = 0.75, alpha = 0.7)
+plot(as.zoo(y_contaminated), main = "+Temporary Change[t=120]",  ylab = "", xlab = "", col = "purple")
+grid()
+y_contaminated <- y_contaminated |> level_shift(time = 200, parameter = -0.25)
+plot(as.zoo(y_contaminated), main = "+Level Shift[t=200]",  ylab = "", xlab = "", col = "red")
+grid()
+par(oldpar)
+```
+
+We now pass the contaminated series to the anomaly identification
+function `auto_regressors`. The `tso` function directly identifies the
+correct number, timing and types of anomalies.^[This may not always be the case depending on the amount of noise
+    and other artifacts in the underlying series and the size of the
+    anomalies versus normal process noise.]
+
+```{r}
+xreg <- auto_regressors(y_contaminated, frequency = 12, 
+                        return_table = TRUE, method = "full")
+xreg[,time := which(index(y_contaminated) %in% xreg$date)]
+print(xreg)
+```
+
+While we can call directly the `auto_clean` function, we'll instead show
+how to use the returned table to decontaminate the data.
+
+```{r,highlight=T,fig.width=6, fig.height=4}
+x <- cbind(additive_outlier(y_contaminated, time = xreg$time[1], add = FALSE),
+           temporary_change(y_contaminated, time = xreg$time[2], alpha = xreg$filter[2], 
+                            add = FALSE),
+           level_shift(y_contaminated, time = xreg$time[3], add = FALSE))
+x <- x %*% xreg$coef
+y_clean <- y_contaminated - x
+oldpar <- par(mfrow = c(1,1))
+par(mfrow = c(2,1), mar = c(2,2,1,1), cex.main = 0.8, cex.axis = 0.8, cex.lab = 0.8)
+plot(as.zoo(y_contaminated), main = "Anomaly Decomtanination", xlab = "", ylab = "", ylim = c(90, 700))
+lines(as.zoo(y_clean), col = 2, lty = 2, lwd = 2)
+lines(as.zoo(y), col = 3, lty = 3, lwd = 2.5)
+grid()
+legend("topleft", c("Contaminated", "Clean", "Original"), col = 1:3, bty = "n", lty = 1:3, cex = 0.8)
+plot(zoo(x, index(y)), main = "Anomalies", xlab = "", ylab = "")
+par(oldpar)
+```
+
+As can be observed, the routine does a very good job of identifying the 3 types
+of anomalies and their timing. Additionally, the function has an argument `h` which
+allows to project the regressors into the future. This is particularly useful for
+location shifts which propagate indefinitely as a vector of ones, and temporary
+shifts which have a defined decay patterns (towards zero).
+
+## Data Transformations
+
+The function `tstransform` is a high level api wrapper for transformations in the package.
+These currently include the Box-Cox (see [@Box1964]), logit, softplus logit and sigmoid, 
+and summarized in the table below.
+
+```{r, echo=FALSE, results='asis'}
+library(knitr)
+
+# Create data frame for comparison
+transformations <- data.frame(
+  Transformation = c("Sigmoid", "Softplus Logit", "Box-Cox", "Logit"),
+  
+  # Input range (domain of the transformation)
+  Range = c(
+    "$(-\\infty, \\infty)$",
+    "$(\\text{lower}, \\text{upper})$",
+    "$(0, \\infty)$",
+    "$(\\text{lower}, \\text{upper})$"
+  ),
+  
+  # Output range (codomain of the transformation)
+  Output_Range = c(
+    "$(0,1)$",
+    "$(\\text{lower}, \\text{upper})$",
+    "$(\\mathbb{R})$",
+    "$(\\mathbb{R})$"
+  ),
+
+  # Transformation formulas
+  Formula = c(
+    "$\\frac{1}{1 + e^{-x}}$",
+    "$\\log(1 + e^{\\log(\\frac{x - \\text{lower}}{\\text{upper} - x})})$",
+    "$\\begin{cases} \\log(x), & \\text{if } \\lambda = 0; \\\\ \\frac{x^\\lambda - 1}{\\lambda}, & \\text{otherwise}. \\end{cases}$",
+    "$\\log \\left( \\frac{x - \\text{lower}}{\\text{upper} - x} \\right)$"
+  ),
+
+  # Inverse transformation formulas
+  Inverse = c(
+    "$\\log \\left( \\frac{x}{1 - x} \\right)$",
+    "$\\frac{\\text{lower} + \\text{upper} (e^x - 1)}{e^x}$",
+    "$\\begin{cases} e^{x}, & \\text{if } \\lambda = 0; \\\\ (\\lambda x + 1)^{\\frac{1}{\\lambda}}, & \\text{otherwise}. \\end{cases}$",
+    "$\\frac{\\text{lower} + \\text{upper} (e^x)}{1 + e^x}$"
+  ),
+
+  # Growth behavior of each transformation
+  Growth = c(
+    "Saturates at 0 and 1",
+    "Can grow exponentially near upper limit",
+    "Varies (linear for $\\lambda = 1$)",
+    "Linear growth"
+  ),
+
+  # Typical use cases for each transformation
+  Use_Cases = c(
+    "Probability estimation, logistic regression, neural networks",
+    "Ensuring positivity, constrained optimization, Bayesian models",
+    "Variance stabilization, handling nonlinearity",
+    "Probability modeling, transformations for bounded variables"
+  )
+)
+transformations |> kable(format = "html", escape = FALSE, align = "l", caption = "Transformations") |>
+  kable_styling(font_size = 10, bootstrap_options = c("striped", "hover", "responsive"), full_width = FALSE)
+```
+
+We provide a short demo below:
+
+```{r,highlight=TRUE,fig.width=6, fig.height=4}
+set.seed(42)
+# Generate data based on DGP assumptions
+boxcox_data <- rgamma(1000, shape = 2, scale = 2)  # Strictly positive
+logit_data <- rbeta(1000, shape1 = 2, shape2 = 5)  # In (0,1)
+softplus_logit_data <- runif(1000, min = 0.1, max = 10)  # Bounded but flexible
+sigmoid_data <- rnorm(1000, mean = 0, sd = 2)  # Real-valued
+lower <- 0
+upper <- 1
+B <- box_cox(lambda = 0.5)
+boxcox_transformed <- B$transform(boxcox_data)
+boxcox_recovered <- B$inverse(boxcox_transformed, lambda = 0.5)
+L <- logit(lower = lower, upper = upper)
+logit_transformed <- L$transform(logit_data)
+logit_recovered <- L$inverse(logit_transformed)
+SPL <- softlogit(lower = 0.1, upper = 10)
+softlogit_transformed <- SPL$transform(softplus_logit_data)
+softlogit_recovered <- SPL$inverse(softlogit_transformed)
+SIG <- sigmoid(lower = -1, upper = 1)
+sigmoid_transformed <- SIG$transform(sigmoid_data)
+sigmoid_recovered <- SIG$inverse(sigmoid_transformed)
+oldpar <- par(mfrow = c(1,1))
+par(mfrow = c(2, 2), mar = c(2,2,1,1), cex.main = 0.8, cex.axis = 0.8, cex.lab = 0.8)
+hist(boxcox_transformed, main = "Box-Cox Transformed Data", col = "blue", breaks = 30)
+hist(logit_transformed, main = "Logit Transformed Data", col = "green", breaks = 30)
+hist(softlogit_transformed, main = "Softplus-Logit Transformed Data", col = "purple", breaks = 30)
+hist(sigmoid_transformed, main = "Sigmoid Transformed Data", col = "red", breaks = 30)
+par(oldpar)
+```
+
+
+## Metrics
+
+A number of metrics are included in the package, for point, interval and distributional
+forecasts, as well as some weighted metrics for multivariate forecasts. 
+
+The table below provides a detailed summary of each function.
+
+```{r, echo=FALSE, results='asis'}
+metrics_table <- data.frame(
+  Function = c("mape", "rmape", "smape", "mase", "mslre", "mis", "msis", 
+           "bias", "wape", "wslre", "wse", "pinball", "crps"),
+  Equation = c(
+    "$\\frac{1}{n} \\sum_{t=1}^{n} \\left| \\frac{A_t - P_t}{A_t} \\right|$",
+    "Box-Cox transformation of MAPE",
+    "$\\frac{2}{n} \\sum_{t=1}^{n} \\frac{|A_t - P_t|}{|A_t| + |P_t|}$",
+    "$\\frac{\\frac{1}{n} \\sum_{t=1}^{n} |P_t - A_t|}{\\frac{1}{N-s} \\sum_{t=s+1}^{N} |A_t - A_{t-s}|}$",
+    "$\\frac{1}{n} \\sum_{t=1}^{n} \\left( \\log(1 + A_t) - \\log(1 + P_t) \\right)^2$",
+    "$\\frac{1}{n} \\sum_{t=1}^{n} (U_t - L_t) + \\frac{2}{\\alpha} [(L_t - A_t) I(A_t < L_t) + (A_t - U_t) I(A_t > U_t)]$",
+    "$\\frac{1}{h} \\sum_{t=1}^{h} \\frac{(U_t - L_t) + \\frac{2}{\\alpha} [(L_t - A_t) I(A_t < L_t) + (A_t - U_t) I(A_t > U_t)]}{\\frac{1}{N-s} \\sum_{t=s+1}^{N} |A_t - A_{t-s}|}$",
+    "$\\frac{1}{n} \\sum_{t=1}^{n} (P_t - A_t)$",
+    "$\\mathbf{w}^T \\left( \\frac{|P - A|}{A} \\right)$",
+    "$\\mathbf{w}^T \\left( \\log \\left( \\frac{P}{A} \\right) \\right)^2$",
+    "$\\mathbf{w}^T \\left( \\frac{P}{A} \\right)^2$",
+    "$\\frac{1}{n} \\sum_{t=1}^{n} [ \\tau (A_t - Q^\\tau_t) I(A_t \\geq Q^\\tau_t) + (1 - \\tau) (Q^\\tau_t - A_t) I(A_t \\lt Q^\\tau_t)]$",
+    "$\\frac{1}{n} \\sum_{t=1}^{n} \\int_{-\\infty}^{\\infty} (F_t(y) - I(y \\geq A_t))^2 dy$"
+  ),
+  Scope = c("U", "U", "U", "U", "U", "U", "U", "U", "M", "M", "M", "U", "U"),
+  Description = c(
+    "Measures the average percentage deviation of predictions from actual values.",
+    "Rescaled MAPE using a Box-Cox transformation for scale invariance.",
+    "An alternative to MAPE that symmetrizes the denominator.",
+    "Compares the absolute error to the mean absolute error of a naive seasonal forecast.",
+    "Measures squared log relative errors to penalize large deviations.",
+    "Evaluates the accuracy of prediction intervals.",
+    "A scaled version of MIS, dividing by the mean absolute seasonal error.",
+    "Measures systematic overestimation or underestimation.",
+    "A weighted version of MAPE for multivariate data.",
+    "A weighted version of squared log relative errors.",
+    "A weighted version of squared errors.",
+    "A scoring rule used for quantile forecasts.",
+    "A measure of probabilistic forecast accuracy."
+  )
+)
+metrics_table |> kable(format = "html", escape = FALSE, align = "l", caption = "Forecast Performance Metrics") |>
+  kable_styling(font_size = 10, bootstrap_options = c("striped", "hover", "responsive"), full_width = FALSE) |>
+  column_spec(2, width = "30%")  # Adjust equation column width
+```
+
+A short demonstration is provided below:
+
+```{r}
+set.seed(42)
+time_points <- 100
+actual <- cumsum(rnorm(time_points, mean = 0.5, sd = 1)) + 50  # Increasing trend
+# Generate "Good" Forecast (small errors)
+good_forecast <- actual + rnorm(time_points, mean = 0, sd = 1)  # Small deviations
+# Generate "Bad" Forecast (biased and larger errors)
+bad_forecast <- actual * 1.2 + rnorm(time_points, mean = 5, sd = 5)  # Large bias
+
+good_distribution <- t(replicate(1000, good_forecast + rnorm(time_points, mean = 0, sd = 1)))
+bad_distribution <- t(replicate(1000, bad_forecast + rnorm(time_points, mean = 0, sd = 3)))
+
+# Compute Metrics
+metrics <- function(actual, forecast, distribution) {
+  list(
+    MAPE = mape(actual, forecast),
+    BIAS = bias(actual, forecast),
+    MASE = mase(actual, forecast, original_series = actual, frequency = 1),
+    RMAPE = rmape(actual, forecast),
+    SMAPE = smape(actual, forecast),
+    MSLRE = mslre(actual, forecast),
+    MIS = mis(actual, lower = forecast - 2, upper = forecast + 2, alpha = 0.05),
+    MSIS = msis(actual, lower = forecast - 2, upper = forecast + 2, original_series = actual, frequency = 1, alpha = 0.05),
+    CRPS = crps(actual, distribution)
+  )
+}
+
+# Compute metrics for both cases
+good_metrics <- metrics(actual, good_forecast, good_distribution)
+bad_metrics <- metrics(actual, bad_forecast, bad_distribution)
+
+# Convert to a clean table
+comparison_table <- data.frame(
+  Metric = names(good_metrics),
+  Good_Forecast = unlist(good_metrics),
+  Bad_Forecast = unlist(bad_metrics)
+)
+rownames(comparison_table) <- NULL
+
+comparison_table |> kable(format = "html", escape = FALSE, align = "c", caption = "Comparison of Forecast Metrics for Good vs. Bad Forecasts") |>
+  kable_styling(font_size = 10, bootstrap_options = c("striped", "hover", "responsive"), full_width = FALSE) |>
+  column_spec(2, width = "30%")  # Adjust equation column width
+```
+
+## Simulation
+
+The simulator is based on a single source of error additive model (`issm`) with options
+for Trend, Seasonality, Regressors, Anomalies and Transformations. Additional models may
+be added in the future to the simulator.
+The table below provides a short description of the available functions.
+
+```{r, echo=FALSE, results='asis'}
+simulator_functions <- data.frame(
+  Function = c("initialize_simulator", "add_polynomial", "add_seasonal", "add_arma", "add_regressor", "add_transform", "add_anomaly", "add_custom", "tsdecompose", "plot", "lines", "mixture_modelspec", "tsensemble"),
+  Details = c(
+    "Initializes the simulation model with an error component.",
+    "Adds a polynomial trend component with optional dampening.",
+    "Adds a seasonal component with a specified frequency.",
+    "Adds an ARMA process to the simulation.",
+    "Adds a regressor component with given coefficients.",
+    "Applies a transformation such as Box-Cox or logit.",
+    "Adds an anomaly component like an additive outlier or level shift.",
+    "Adds a custom user-defined component.",
+    "Decomposes the simulated series into its state components.",
+    "Plots the simulated time series or its components.",
+    "Adds line segments to an existing plot.",
+    "Creates an ensemble setup for multiple simulation models.",
+    "Aggregates multiple simulated series using a weighting scheme."
+  ),
+  stringsAsFactors = FALSE
+)
+simulator_functions |> kable(format = "html", escape = FALSE, align = "l", caption = "Simulator Functions") |>
+  kable_styling(font_size = 10, bootstrap_options = c("striped", "hover", "responsive"), full_width = FALSE) |>
+  column_spec(2, width = "30%")  # Adjust equation column width
+```
+
+A short demostration follows:
+
+```{r,highlight=TRUE,fig.width=6, fig.height=6}
+set.seed(154)
+r <- rnorm(100, mean = 0, sd = 5)
+d <- seq(as.Date("2000-01-01"), by = "months", length.out = 100)
+mod <- initialize_simulator(r, index = d, sampling = "months", model = "issm")
+oldpar <- par(mfrow = c(1,1))
+par(mfrow = c(3,2), mar = c(2,2,1,1), cex.main = 0.8, cex.axis = 0.8, cex.lab = 0.8)
+plot(zoo(mod$simulated, mod$index), ylab = "", xlab = "", main = "Step 1: Error Component", col = "black")
+mod <- mod |> add_polynomial(order = 2, alpha = 0.22, beta = 0.01, b0 = 1, l0 = 140)
+plot(zoo(mod$simulated, mod$index), ylab = "", xlab = "", main = "Step 2: + Level Component", col = "blue")
+mod <- mod |> add_seasonal(frequency = 12, gamma = 0.7, init_scale = 2)
+plot(zoo(mod$simulated, mod$index), ylab = "", xlab = "", main = "Step 3: + Seasonal Component", col = "green")
+mod <- mod |> add_arma(order = c(2,1), ar = c(0.5, -0.3), ma = 0.4)
+plot(zoo(mod$simulated, mod$index), ylab = "", xlab = "", main = "Step 4: + ARMA Component", col = "purple")
+mod <- mod |> add_anomaly(time = 50, delta = 0.5, ratio = 1)
+plot(zoo(mod$simulated, mod$index), ylab = "", xlab = "", main = "Step 5: + Anomaly Component", col = "red")
+par(oldpar)
+```
+
+We can also decompose the simulated series (note that the Irregular component absorbs the ARMA component
+in this decomposition).
+
+```{r,highlight=TRUE,fig.width=6, fig.height=5}
+decomp <- tsdecompose(mod)
+oldpar <- par(mfrow = c(1,1))
+par(mfrow = c(1,1), mar = c(1,3,1,1), cex.main = 0.9, cex.axis = 0.8)
+plot(as.zoo(decomp), main = "Decomposition", col = c("blue","green","purple","black"), xlab = "", cex.lab = 0.7)
+par(oldpar)
+```
+
+Next, we show how to ensemble with time varying weights:
+
+```{r,highlight=TRUE,fig.width=6, fig.height=4}
+set.seed(123)
+r <- rnorm(200, mean = 0, sd = 5)
+d <- seq(as.Date("2000-01-01"), by = "months", length.out = 200)
+mod1 <- initialize_simulator(r, index = d, sampling = "months", model = "issm") |> 
+  add_polynomial(order = 2, alpha = 0.22, beta = 0.01, b0 = 1, l0 = 140) |> 
+  add_seasonal(frequency = 12, gamma = 0.7, init_scale = 2) |> 
+  add_arma(order = c(2,1), ar = c(0.5, -0.3), ma = 0.4) |> 
+  add_transform(method = "box-cox", lambda = 1)
+mod2 <- initialize_simulator(r, index = d, sampling = "months", model = "issm") |> 
+  add_polynomial(order = 2, alpha = 0.22, beta = 0.01, b0 = 1, l0 = 140) |> 
+  add_seasonal(frequency = 12, gamma = 0.7, init_scale = 2) |> 
+  add_arma(order = c(2,1), ar = c(0.5, -0.3), ma = 0.4) |> 
+  add_transform(method = "box-cox", lambda = 0.5)
+ensemble <- mixture_modelspec(mod1, mod2)
+t <- 1:200
+weights1 <- exp(-t / 50)
+weights2 <- 1 - weights1
+weights <- cbind(weights1, weights2)
+ens_sim <- tsensemble(ensemble, weights = weights, difference = FALSE)
+
+oldpar <- par(mfrow = c(1,1))
+par(mfrow = c(3,1), mar = c(2,2,1,1), cex.main = 0.8, cex.axis = 0.8, cex.lab = 0.8)
+plot(mod1, main = "Simulation [lambda = 1]", col = "blue")
+plot(mod2, main = "Simulation [lambda = 0.5]", col = "green")
+plot(as.zoo(ens_sim), main = "Ensembled Simulation", ylab = "", xlab = "", col = "red")
+par(oldpar)
+```
+
+
+## Calendar/Time Utilities
+
+There are a number of utility functions for converting a date into an end of
+period date such a week (`calendar_eow`), month (`calendar_eom`), quarter (`calendar_eoq`)
+and year (`calendar_eoy`), as well as floor/ceiling operations on POSIXct type
+objects (`process_time`). The sampling frequency of a date/time vector or xts object 
+can be inferred using the `sampling_frequency` function.
+
+Seasonal dummies can be created using the `seasonal_dummies` function and fourier
+seasonality using the `fourier_series` function. A simple seasonality test based
+on [@Gomez1995] is available in the `seasonality_test` function.
+
+A particularly useful function is `future_dates` which generates a sequence of
+forward dates based on the sampling frequency provided. This can then be passed
+to the `forc_dates` argument in predict methods across the tsmodels packages
+which is then used to populate the forecast indices.
+
+
+## Miscellaneous
+
+There is currently a simple linear model called `tslinear` which can model and predict 
+seasonal series using linear regression. This can be considered a simple backup/fallback
+for cases when other models fail. Note that in order to forecast from the model, the
+input data needs to be appended with NA's. These are then filled in with the forecast.
+
+An example is provided below
+
+```{r,highlight=TRUE,fig.width=6, fig.height=3}
+set.seed(200)
+r <- rnorm(300, mean = 0, sd = 5)
+d <- seq(as.Date("2000-01-01"), by = "months", length.out = 300)
+mod <- initialize_simulator(r, index = d, sampling = "months", model = "issm")
+mod <- mod |> add_polynomial(order = 2, alpha = 0.22, beta = 0.01, b0 = 1, l0 = 140)
+mod <- mod |> add_seasonal(frequency = 12, gamma = 0.7, init_scale = 2)
+y <- xts(mod$simulated, mod$index)
+train <- y
+train[251:300] <- NA
+colnames(train) <- "train"
+colnames(y) <- "y"
+estimated_model <- tslinear(train, trend = TRUE, seasonal = TRUE, frequency = 12)
+
+oldpar <- par(mfrow = c(1,1))
+par(mfrow = c(1,1), mar = c(2,2,1,1), cex.main = 0.8, cex.axis = 0.8, cex.lab = 0.8)
+plot(as.zoo(y), ylab = "", xlab = "", type = "l", main = "tslinear")
+lines(zoo(estimated_model$fitted.values, d), col = "blue")
+lines(zoo(tail(estimated_model$fitted.values, 50), tail(d, 50)), col = "red")
+grid()
+legend("topleft",c("Actual","Fitted","Predicted"), col = c("black","blue","red"), lty = 1, bty = "n", cex = 0.9)
+par(oldpar)
+```
+
+
+## References
+
+

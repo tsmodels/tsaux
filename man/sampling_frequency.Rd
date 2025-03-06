@@ -8,7 +8,7 @@ sampling_frequency(x)
 }
 \arguments{
 \item{x}{either an xts object (or one which has an index attribute) else a
-vector of class Date or POSIX based time index.}
+vector of class Date or POSIX based time index}
 }
 \value{
 the sampling period (character).
@@ -18,7 +18,6 @@ Given either a vector of time indices or an xts object will infer the
 sampling frequency.
 }
 \examples{
-
 w <- sampling_frequency(seq(as.Date("2010-01-01"), as.Date("2011-01-01"), by="weeks"))
 m <- sampling_frequency(seq(as.POSIXct("2010-01-01 12:00:00"),
 as.POSIXct("2010-01-02 12:00:00"), by="15 mins"))

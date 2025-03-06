@@ -2,26 +2,25 @@
 % Please edit documentation in R/frequency.R
 \name{sampling_sequence}
 \alias{sampling_sequence}
-\title{Sampling Frequency Sequence}
+\title{Sampling frequency sequence}
 \usage{
 sampling_sequence(period)
 }
 \arguments{
 \item{period}{the period returned by a call to the function
-\code{\link{sampling_frequency}}.}
+\code{\link[tsaux]{sampling_frequency}}.}
 }
 \value{
 A named numeric vector.
 }
 \description{
-Given a sampling period, the function will return the number of units of
+Given a sampling period, the function will return the proportion of units of
 that period in secs, mins, hours, days, weeks, months and years, but will
 return NA for periods of higher frequency i.e. for a period of days it will
 return NA for secs, mins and hours. The function serves as a helper for
 seasonal periodicity calculations.
 }
 \examples{
-
 w <- sampling_sequence(sampling_frequency(seq(as.Date("2010-01-01"),
 as.Date("2011-01-01"), by="weeks")))
 m <- sampling_sequence(sampling_frequency(seq(as.POSIXct("2010-01-01 12:00:00"),

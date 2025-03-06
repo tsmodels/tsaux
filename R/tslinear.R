@@ -1,10 +1,8 @@
 #' Linear Time Series Filter
-#' 
-#' Provides a quick linear time series filter with trend and seasonality.
-#' 
+#'
 #' Estimates a simple linear time series model with trend, seasonal and
 #' regressors.
-#' 
+#'
 #' @param y a vector.
 #' @param trend whether to include a linear trend.
 #' @param seasonal whether to include seasonal dummies.
@@ -70,23 +68,4 @@ tslinear = function(y, trend = FALSE, seasonal = FALSE, xreg = NULL, frequency =
     fit$method <- "Linear regression model"
     class(fit) <- c("tslinear", class(fit))
     return(fit)
-}
-
-check_xreg = function(xreg, valid_index)
-{
-    if (is.null(xreg)) return(xreg)
-    n <- length(valid_index)
-    if (NROW(xreg) != n) {
-        stop("\nxreg does not have the same number of rows as y")
-    }
-    if (!all.equal(index(xreg), valid_index)) {
-        stop("\nxreg time index does not match that of y")
-    }
-    if (any(is.na(xreg))) {
-        stop("\nNAs found in xreg object")
-    }
-    if (is.null(colnames(xreg))) {
-        colnames(xreg) <- paste0("x",1:ncol(xreg))
-    }
-    return(xreg)
 }

@@ -26,8 +26,7 @@ that frequency. The frequency can be overridden by directly supplying a
 frequency argument, in which case y does not need to be a xts vector.
 }
 \references{
-Gomez, Victor and Maravall, Agustin, \emph{Programs TRAMO and
-SEATS}, 1986.
+\insertRef{Gomez1995}{tsaux}
 }
 \author{
 Alexios Galanos

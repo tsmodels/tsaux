@@ -1,6 +1,10 @@
+# 2025-02-20 v.1.0.0 [AG]
+- Rewrite of tsaux for release to CRAN (as it is required by upcoming re-write of tsissm).
+- Added vignette
+- Added unit tests
+
 # 2022-04-30 v.0.3.0 [AG]
 - Added missing hanlding for some additional metrics (weighted matrix based)
-
 # 2022-03-17 v.0.2.0 [AG]
 - Added additional checks to auto_regressors (and auto_clean) for frequency
 and data size (for seasonal) to avoid errors in stlm when length(y) <= 2xfrequency

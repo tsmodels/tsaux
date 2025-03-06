@@ -1,16 +1,47 @@
-#' Infers the sampling frequency of a time series
-#' 
+find_frequency <- function(x)
+{
+    n <- length(x)
+    x <- as.ts(x)
+    # x should be the transformed variable else if the data is not variance stabilized
+    # the frequency will be badly determined
+    x <- residuals(tslinear(x, trend = TRUE))
+    n.freq <- 500
+    spec <- spec.ar(c(na.contiguous(x)), plot = FALSE, n.freq = n.freq)
+    if (max(spec$spec) > 10) {
+        period <- floor(1/spec$freq[which.max(spec$spec)] + 0.5)
+        if (period == Inf) {
+            j <- which(diff(spec$spec) > 0)
+            if (length(j) > 0) {
+                nextmax <- j[1] + which.max(spec$spec[(j[1] + 1):n.freq])
+                if (nextmax < length(spec$freq)) {
+                    period <- floor(1/spec$freq[nextmax] + 0.5)
+                }
+                else {
+                    period <- 1L
+                }
+            }
+            else {
+                period <- 1L
+            }
+        }
+    }
+    else {
+        period <- 1L
+    }
+    return(as.integer(period))
+}
+
+
+#' @title Infers the sampling frequency of a time series
+#' @description
 #' Given either a vector of time indices or an xts object will infer the
 #' sampling frequency.
-#' 
-#' 
 #' @param x either an xts object (or one which has an index attribute) else a
-#' vector of class Date or POSIX based time index.
-#' @return the sampling period (character).
+#' vector of class Date or POSIX based time index
+#' @returns the sampling period (character).
 #' @export
 #' @rdname sampling_frequency
 #' @examples
-#' 
 #' w <- sampling_frequency(seq(as.Date("2010-01-01"), as.Date("2011-01-01"), by="weeks"))
 #' m <- sampling_frequency(seq(as.POSIXct("2010-01-01 12:00:00"),
 #' as.POSIXct("2010-01-02 12:00:00"), by="15 mins"))
@@ -63,63 +94,25 @@ sampling_frequency <- function(x)
     return(period)
 }
 
-find_frequency <- function(x)
-{
-    n <- length(x)
-    x <- as.ts(x)
-    # x should be the transformed variable else if the data is not variance stabilized
-    # the frequency will be badly determined
-    x <- residuals(tslinear(x, trend = TRUE))
-    n.freq <- 500
-    spec <- spec.ar(c(na.contiguous(x)), plot = FALSE, n.freq = n.freq)
-    if (max(spec$spec) > 10) {
-        period <- floor(1/spec$freq[which.max(spec$spec)] + 0.5)
-        if (period == Inf) {
-            j <- which(diff(spec$spec) > 0)
-            if (length(j) > 0) {
-                nextmax <- j[1] + which.max(spec$spec[(j[1] + 1):n.freq])
-                if (nextmax < length(spec$freq)) {
-                    period <- floor(1/spec$freq[nextmax] + 0.5)
-                }
-                else {
-                    period <- 1L
-                }
-            }
-            else {
-                period <- 1L
-            }
-        }
-    }
-    else {
-        period <- 1L
-    }
-    return(as.integer(period))
-}
-
-
-
-#' Sampling Frequency Sequence
-#' 
-#' Given a sampling period, the function will return the number of units of
+#' @title Sampling frequency sequence
+#' @description
+#' Given a sampling period, the function will return the proportion of units of
 #' that period in secs, mins, hours, days, weeks, months and years, but will
 #' return NA for periods of higher frequency i.e. for a period of days it will
 #' return NA for secs, mins and hours. The function serves as a helper for
 #' seasonal periodicity calculations.
-#' 
-#' 
 #' @param period the period returned by a call to the function
-#' \code{\link{sampling_frequency}}.
-#' @return A named numeric vector.
+#' \code{\link[tsaux]{sampling_frequency}}.
+#' @returns A named numeric vector.
 #' @export
 #' @rdname sampling_sequence
 #' @author Alexios Galanos
 #' @examples
-#' 
 #' w <- sampling_sequence(sampling_frequency(seq(as.Date("2010-01-01"),
 #' as.Date("2011-01-01"), by="weeks")))
 #' m <- sampling_sequence(sampling_frequency(seq(as.POSIXct("2010-01-01 12:00:00"),
 #' as.POSIXct("2010-01-02 12:00:00"), by="15 mins")))
-#' 
+#'
 sampling_sequence <- function(period)
 {
     # [secs, mins, hrs, days, weeks, months, year]

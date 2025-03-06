@@ -1,13 +1,13 @@
 #' Generate Regular Interval Future Dates
-#' 
+#'
 #' Generates regular interval future dates for use in forecast routine.
-#' 
-#' 
+#'
+#'
 #' @param start a Date string for the start date.
 #' @param frequency frequency of the interval (daily, weekly, monthly or
 #' yearly).
 #' @param n number of future periods to generate dates for.
-#' @return A Date vector
+#' @returns A Date vector
 #' @export
 #' @rdname future_dates
 #' @author Alexios Galanos
@@ -28,36 +28,37 @@ future_dates <- function(start, frequency, n = 1)
 }
 
 #' Generate Train/Test Splits
-#' 
+#'
 #' Generates train/test splits given a vector of dates and other options
-#' 
+#'
 #' @param x a vector of timestamps (POSIXct) or dates (Date) in the dataset
 #' @param start starting date (first estimation/train date)
 #' @param test_length type of calendar period to split on
 #' @param by every how many periods to split on
-#' @param window_size the size of the training set (for moving window). If NULL 
+#' @param window_size the size of the training set (for moving window). If NULL
 #' will use an expanding window.
 #' @param calendar_end an optional function to use for the period ending split,
-#' such as \code{\link{calendar_eow}}, applied to x. This should be greater in 
+#' such as \code{\link{calendar_eow}}, applied to x. This should be greater in
 #' frequency than the underlying frequency of x (i.e. do not use calendar_eow on
 #' monthly indices). This overwrites the use of window_size.
 #' @param complete_index whether to return the full indices for train and test else
 #' just the start and end indices.
-#' @param \dots any additional parameters passed to the calendar_end function. For 
+#' @param \dots any additional parameters passed to the calendar_end function. For
 #' example, the \dQuote{day} argument when using the calendar_eow function.
-#' @return A list with each slot having the training dates and test dates
-#' @note For months, quarters and years this will split into the end date of 
+#' @returns A list with each slot having the training dates and test dates
+#' @note For months, quarters and years this will split into the end date of
 #' these. For splitting into mins or hours, x must also have this resolution else
 #' will throw an error. Additionally, the strict requirement of regularly spaced
 #' time is required (no gaps).
 #' @rdname time_splits
 #' @author Alexios Galanos
 #' @export
-#' 
-time_splits <- function(x, start, test_length = 1, by = test_length, 
-                        window_size = NULL, calendar_end = NULL, 
+#'
+time_splits <- function(x, start = x[1], test_length = 1, by = test_length,
+                        window_size = NULL, calendar_end = NULL,
                         complete_index = TRUE, ...)
 {
+    if (missing(x)) stop("\nx cannot be missing")
     period_end <- NULL
     if (!is.null(calendar_end)) {
         d <- data.table(index = x)

@@ -24,9 +24,6 @@ An object of class \dQuote{tslinear} which also inherits
 \dQuote{lm}.
 }
 \description{
-Provides a quick linear time series filter with trend and seasonality.
-}
-\details{
 Estimates a simple linear time series model with trend, seasonal and
 regressors.
 }

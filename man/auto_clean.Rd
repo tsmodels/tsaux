@@ -50,7 +50,7 @@ input a univariate xts object and returns a series decomtaminated from
 outliers and temporary changes.
 }
 \details{
-Call the \code{\link{auto_regressors}} function to obtain the matrix of
+Calls the \code{\link[tsaux]{auto_regressors}} function to obtain the matrix of
 regressors and coefficients which are then used to decomtaminate the series.
 If lambda is not NULL, the series is first transformed to perform the
 decontamination and then back transformed afterwards.

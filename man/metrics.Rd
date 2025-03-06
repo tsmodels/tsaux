@@ -36,6 +36,8 @@ pinball(actual, distribution, alpha = 0.1)
 
 crps(actual, distribution)
 
+rmape(actual, predicted)
+
 smape(actual, predicted)
 
 msis(actual, lower, upper, original_series, frequency = 1, alpha)
@@ -45,29 +47,19 @@ msis(actual, lower, upper, original_series, frequency = 1, alpha)
 
 \item{predicted}{the predicted values corresponding to the forecast period.}
 
-\item{original_series}{the actual values corresponding to the training
-period.}
+\item{original_series}{the actual values corresponding to the training period.}
 
 \item{frequency}{the seasonal frequency of the series used in the model.}
 
-\item{lower}{the lower distributional forecast for the quantile
-corresponsing to the coverage ratio alpha (i.e. alpha/2).}
+\item{lower}{the lower distributional forecast for the quantile corresponding to the coverage ratio alpha (i.e. alpha/2).}
 
-\item{upper}{the upper distributional forecast for the quantile
-corresponding to the coverage ratio alpha (i.e. 1 - alpha/2).}
+\item{upper}{the upper distributional forecast for the quantile corresponding to the coverage ratio alpha (i.e. 1 - alpha/2).}
 
 \item{alpha}{the distributional coverage.}
 
-\item{weights}{a vector of weights for generating weighted metrics. If the
-actual and predicted inputs are univariate, this should be equal to the
-length of the actual series and calculates a time weighted average, else the
-weights should be of length equal to the number of series in a multivariate
-case in which case a cross-sectional average is calculated.}
+\item{weights}{a vector of weights for generating weighted metrics. If the actual and predicted inputs are univariate, this should be equal to the length of the actual series and calculates a time-weighted average; otherwise, the weights should be of length equal to the number of series in a multivariate case, in which case a cross-sectional average is calculated.}
 
-\item{distribution}{the forecast distribution (returned in the distribution
-slot of the prediction object). This is used in the continuous ranked
-probability score (crps) of Gneiting et al (2005), and calculated using the
-function from the scoringRules package.}
+\item{distribution}{the forecast distribution (returned in the distribution slot of the prediction object). This is used in the continuous ranked probability score (crps) of Gneiting et al. (2005), and calculated using the function from the `scoringRules` package.}
 }
 \value{
 A numeric value.
@@ -75,25 +67,64 @@ A numeric value.
 \description{
 Functions to calculate a number of performance metrics.
 }
+\details{
+The following performance metrics are implemented:
+
+\describe{
+  \item{\emph{Mean Absolute Percentage Error (MAPE)}}{Measures the average percentage deviation of predictions from actual values.
+    \deqn{ MAPE = \frac{1}{n} \sum_{t=1}^{n} \left| \frac{A_t - P_t}{A_t} \right| }
+    where \eqn{A_t} is the actual value and \eqn{P_t} is the predicted value.}
+
+  \item{\emph{Rescaled Mean Absolute Percentage Error (RMAPE)}}{A transformation of MAPE using a Box-Cox transformation for scale invariance (Swanson et al.).}
+
+  \item{\emph{Symmetric Mean Absolute Percentage Error (SMAPE)}}{An alternative to MAPE that symmetrizes the denominator.
+    \deqn{ SMAPE = \frac{2}{n} \sum_{t=1}^{n} \frac{|A_t - P_t|}{|A_t| + |P_t|} }}
+
+  \item{\emph{Mean Absolute Scaled Error (MASE)}}{Compares the absolute error to the mean absolute error of a naive seasonal forecast.
+    \deqn{ MASE = \frac{\frac{1}{n} \sum_{t=1}^{n} |P_t - A_t|}{\frac{1}{N-s} \sum_{t=s+1}^{N} |A_t - A_{t-s}|} }
+    where \eqn{s} is the seasonal period.}
+
+  \item{\emph{Mean Squared Logarithmic Relative Error (MSLRE)}}{Measures squared log relative errors to penalize large deviations.
+    \deqn{ MSLRE = \frac{1}{n} \sum_{t=1}^{n} \left( \log(1 + A_t) - \log(1 + P_t) \right)^2 }}
+
+  \item{\emph{Mean Interval Score (MIS)}}{Evaluates the accuracy of prediction intervals.
+    \deqn{ MIS = \frac{1}{n} \sum_{t=1}^{n} (U_t - L_t) + \frac{2}{\alpha} [(L_t - A_t) I(A_t < L_t) + (A_t - U_t) I(A_t > U_t)] }
+    where \eqn{L_t} and \eqn{U_t} are the lower and upper bounds of the interval.}
+
+  \item{\emph{Mean Scaled Interval Score (MSIS)}}{A scaled version of MIS, dividing by the mean absolute seasonal error.
+    \deqn{ MSIS = \frac{1}{h} \sum_{t=1}^{h} \frac{(U_t - L_t) + \frac{2}{\alpha} [(L_t - A_t) I(A_t < L_t) + (A_t - U_t) I(A_t > U_t)]}{\frac{1}{N-s} \sum_{t=s+1}^{N} |A_t - A_{t-s}|} }}
+
+  \item{\emph{Bias}}{Measures systematic overestimation or underestimation.
+    \deqn{ Bias = \frac{1}{n} \sum_{t=1}^{n} (P_t - A_t) }}
+
+  \item{\emph{Weighted Absolute Percentage Error (WAPE)}}{A weighted version of MAPE.
+    \deqn{ WAPE = \sum_{t=1}^{n} \mathbf{w} \frac{|P_t - A_t|}{A_t} }
+    where \eqn{\mathbf{w}} is the weight vector.}
+
+  \item{\emph{Weighted Squared Logarithmic Relative Error (WSLRE)}}{A weighted version of squared log relative errors.
+    \deqn{ WSLRE = \sum_{t=1}^{n} \mathbf{w} (\log(P_t / A_t))^2 }}
+
+  \item{\emph{Weighted Squared Error (WSE)}}{A weighted version of squared errors.
+    \deqn{ WSE = \sum_{t=1}^{n} \mathbf{w} \left( \frac{P_t}{A_t} \right)^2 }}
+
+  \item{\emph{Pinball Loss}}{A scoring rule used for quantile forecasts.
+    \deqn{ \text{Pinball} = \frac{1}{n} \sum_{t=1}^{n} \left[ \tau (A_t - Q^\tau_t) I(A_t \geq Q^\tau_t) + (1 - \tau) (Q^\tau_t - A_t) I(A_t < Q^\tau_t) \right] }
+    where \deqn{Q^\tau_t} is the predicted quantile at level \deqn{\tau}.}
+
+  \item{\emph{Continuous Ranked Probability Score (CRPS)}}{A measure of probabilistic forecast accuracy.
+    \deqn{ CRPS = \frac{1}{n} \sum_{t=1}^{n} \int_{-\infty}^{\infty} (F_t(y) - I(y \geq A_t))^2 dy }
+    where \eqn{F_t(y)} is the cumulative forecast distribution.}
+}
+}
 \note{
-The bias metric returns the percent bias. The rmape is the rescaled
-measure for mape based on the paper by Swanson et al.
+The RMAPE is the rescaled measure for MAPE based on the paper by Swanson et al.
 }
 \references{
-Tofallis (2015). A better measure of relative prediction
-accuracy for model selection and model estimation, Journal of the
-Operational Research Society \emph{66(8)}, 1352-1362.\cr Hyndman, Rob J and
-Koehler, Anne B (2006). Another look at measures of forecast accuracy,
-International Journal of Forecasting\emph{22(4)}, 679-688.\cr Gneiting,
-Tilmann, Raftery, Adrian E, Westveld, Anton H and Goldman, Tom (2005).
-Calibrated Probabilistic Forecasting Using Ensemble Model Output Statistics
-and Minimum CRPS Estimation, Monthly Weather Review, \emph{133(5)},
-1098-1118.\cr Gneiting, Tilmann and Raftery, Adrian E (2007). Strictly
-proper scoring rules, prediction, and estimation, Journal of the American
-statistical Association \emph{102(477)}, 359-378.\cr Swanson, D.A., Tayman,
-J. and Bryan, T.M. (2011) MAPE-R: a rescaled measure of accuracy for
-cross-sectional subnational population forecasts. J Pop Research \emph{28},
-225–243.
+\insertRef{Tofallis2015}{tsaux}\cr
+\insertRef{Hyndman2006}{tsaux}\cr
+\insertRef{Gneiting2005}{tsaux}\cr
+\insertRef{Gneiting2007}{tsaux}\cr
+\insertRef{Swanson2011}{tsaux}\cr
 }
 \author{
 Alexios Galanos

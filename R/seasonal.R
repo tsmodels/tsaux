@@ -1,13 +1,26 @@
+seasonal_frequencies <- function(x, taper = 0, detrend = FALSE, demean = TRUE, plot = FALSE, ...)
+{
+    tmp <- ts(as.numeric(x), frequency = 1)
+    sp <- spec.pgram(tmp, taper = taper, detrend = detrend, demean = demean, plot = FALSE)
+    sp$spec <- 2 * sp$spec
+    sp$spec[sp$freq == 0.5] <- sp$spec[sp$freq == 0.5]/2
+    sol <- data.frame(freq = sp$freq, spec = sp$spec)
+    sol <- sol[order(-sol$spec),]
+    sol$time <- 1/sol$f
+    if (plot) plot(y = sp$spec, x = sp$freq, type = "h")
+    return(sol)
+}
+
 #' Simple Seasonality Test
-#' 
+#'
 #' Checks for the presence of seasonality based on the QS test of Gomez and
 #' Maravall (1996).
-#' 
+#'
 #' Given the identified frequency of the xts vector (using the
 #' \code{\link{sampling_frequency}}), the function checks for seasonality at
 #' that frequency. The frequency can be overridden by directly supplying a
 #' frequency argument, in which case y does not need to be a xts vector.
-#' 
+#'
 #' @param x an (xts) vector (usually of a stationary series).
 #' @param frequency overrides any frequency automatically identified in the
 #' index of x.
@@ -15,14 +28,14 @@
 #' @export
 #' @rdname seasonality_test
 #' @author Alexios Galanos
-#' @references Gomez, Victor and Maravall, Agustin, \emph{Programs TRAMO and
-#' SEATS}, 1986.
+#' @references
+#' \insertRef{Gomez1995}{tsaux}
 seasonality_test <- function(x, frequency = NULL){
     # Based on the QS test (Gomez  and  Maravall  1996)
     if (is.null(frequency)) {
         if (!is.xts(x)) stop("\nx must be an xts or zoo vector when frequency is NULL.")
         period <- na.omit(sampling_sequence(sampling_frequency(x)))
-        period <- period[which(period > 1)]
+        period <- period[which(period > 1)][1]
     } else{
         period <- frequency
     }
@@ -32,7 +45,7 @@ seasonality_test <- function(x, frequency = NULL){
     if (N < (3 * period)) {
         test_seasonal <- FALSE
     } else {
-        xacf <- acf(as.numeric(x), plot = FALSE)$acf[-1, 1, 1]
+        xacf <- acf(as.numeric(x), plot = FALSE, lag.max = 2 * period)$acf[-1, 1, 1]
         clim <- tcrit/sqrt(N) * sqrt(cumsum(c(1, 2 * xacf^2)))
         test_seasonal <- abs(xacf[period]) > clim[period]
         if (is.na(test_seasonal)) {
@@ -45,10 +58,10 @@ seasonality_test <- function(x, frequency = NULL){
 
 
 #' Fourier terms for modelling seasonality
-#' 
+#'
 #' Returns a matrix containing terms from a Fourier series, up to order K
-#' 
-#' 
+#'
+#'
 #' @param dates a Date vector representing the length of the series for which
 #' the fourier terms are required.
 #' @param period frequency of the underlying series, if NULL will try to
@@ -111,23 +124,23 @@ fourier_series <- function(dates, period = NULL, K = NULL) {
 
 
 #' Seasonal Dummies
-#' 
+#'
 #' Creates a matrix of seasonal dummies.
-#' 
+#'
 #' Generates seasons-1 dummy variables.
-#' 
+#'
 #' @param y optional data series.
 #' @param n if y is missing, then the length of the series is required.
 #' @param seasons number of seasons in a cycle.
-#' @return Either a matrix (if y is missing or y is not an xts vector) or an
+#' @returns Either a matrix (if y is missing or y is not an xts vector) or an
 #' xts matrix (when y is an xts vector).
 #' @export
 #' @rdname seasonal_dummies
 #' @author Alexios Galanos
 #' @examples
-#' 
+#'
 #' head(seasonal_dummies(n=100, seasons=12))
-#' 
+#'
 seasonal_dummies <- function(y = NULL, n = nrow(y), seasons = 12)
 {
     if (is.null(y)) {

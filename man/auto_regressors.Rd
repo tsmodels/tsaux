@@ -61,8 +61,8 @@ as a vector of initial parameter for use in the initialization of the
 optimizer.
 }
 \description{
-A wrapper function for \emph{tso} from the tsoutliers packages. Takes as
-input a univariate xts object and returns a list with an xts object with any
+A wrapper function for \emph{tso} from the \code{\link[tsoutliers]{tso}} package.
+Takes as input a univariate xts object and returns a list with an xts object with any
 identified outliers, trend breaks and/or temporary changes to be used as
 regressors during estimation as well initial coefficients (see details).
 }
@@ -75,7 +75,7 @@ followed by an optional Box Cox transformation, and then elimination (and
 identification) of any outliers during the first pass. The cleaned series is
 then run through an stl filter (if any frequency is greater than 1) in order
 to deseasonalize the data (with multiple seasonality supported), after which
-the deseasonlized series is passed to the tso function where any additive
+the deseasonalized series is passed to the tso function where any additive
 outliers (AO), temporary shifts (TC) or level shift (LS) are identified.
 Additive outliers from this stage are added to any identified outliers from
 the initial stage. For each regressor, initial parameter values are returned
@@ -109,7 +109,7 @@ outlier2 = as.numeric(filter(outlier2, filter = 0.6, method = "recursive"))
 y = y + y*xts(outlier1, index(y))
 y = y + y*xts(outlier2, index(y))
 # may need some tweaking of the tso options.
-x = auto_regressors(y, frequency = 1, sampling = "days", h = 20, 
+x = auto_regressors(y, frequency = 1, sampling = "days", h = 20,
 check.rank = TRUE, discard.cval = 4)
 head(x$xreg)
 tail(x$xreg)
@@ -121,5 +121,5 @@ min(which(x$xreg[,2]==1))
 }
 \author{
 Alexios Galanos for this wrapper function.\cr Rob Hyndman for the
-forecast package.\cr Javier López-de-Lacalle for the tsoutliers package.
+forecast package.\cr Javier Lopez-de-Lacalle for the tsoutliers package.
 }

@@ -1,16 +1,16 @@
 #' End of Week Date
-#' 
+#'
 #' Returns the last day of the week from a Date given a choice of week days.
-#' 
+#'
 #' Given a Date (such as 2019-01-02) and a day of 7, will return the Date for
 #' the Sunday at or immediately after that. The week starting day is Monday
 #' (1). A simple use case is when one wants to aggregate daily data to a
 #' regular weekly sequence.
-#' 
+#'
 #' @param date a Date vector
 #' @param day a value between 1 (Monday) and 7 (Sunday).
 #' @param \dots not used
-#' @return Date object
+#' @returns Date object
 #' @export
 #' @rdname calendar_eow
 #' @author Alexios Galanos
@@ -28,15 +28,15 @@ calendar_eow <- function(date, day = 7, ...)
 
 
 #' End of Month Date
-#' 
+#'
 #' Returns the last day of the month from a Date within the month.
-#' 
+#'
 #' Given a Date (such as 2019-01-02), will return the last Date within that
 #' year month.
-#' 
+#'
 #' @param date a Date vector
 #' @param \dots not used
-#' @return Date object
+#' @returns Date object
 #' @export
 #' @rdname calendar_eom
 #' @author Alexios Galanos
@@ -58,15 +58,15 @@ calendar_eom <- function(date, ...)
 }
 
 #' End of Quarter Date
-#' 
+#'
 #' Returns the last day of the quarter from a Date.
-#' 
+#'
 #' Given a date (such as 2019-01-02), will return the last date within that
 #' year quarter.
-#' 
+#'
 #' @param date a Date vector
 #' @param \dots not used
-#' @return Date object
+#' @returns Date object
 #' @export
 #' @rdname calendar_eoq
 #' @author Alexios Galanos
@@ -82,15 +82,15 @@ calendar_eoq <- function(date, ...) {
 }
 
 #' End of Year Date
-#' 
+#'
 #' Returns the last day of the year from a Date.
-#' 
+#'
 #' Given a date (such as 2019-01-02), will return the last date within that
 #' year.
-#' 
+#'
 #' @param date a Date vector
 #' @param \dots not used
-#' @return Date object
+#' @returns Date object
 #' @export
 #' @rdname calendar_eoy
 #' @author Alexios Galanos
@@ -101,15 +101,15 @@ calendar_eoy <- function(date, ...) {
 }
 
 #' POSIXct Processing
-#' 
+#'
 #' Ceiling, Floor and Other operations on a POSIXct object
-#' 
+#'
 #' @param x a POSIXct vector
 #' @param second_precision the precision in seconds on which the processing operates on
 #' @param method the method for processing
 #' @param \dots not used
-#' @return POSIXct object
-#' @examples 
+#' @returns POSIXct object
+#' @examples
 #' # end of hour
 #' process_time(as.POSIXct('2022-08-03 03:00:01', tz = 'UTC'), 3600, method = ceiling)
 #' # start of hour

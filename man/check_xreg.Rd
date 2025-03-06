@@ -7,7 +7,7 @@
 \usage{
 check_xreg(xreg, valid_index)
 
-check_newxreg(newdata, xnames, h = 1, forc_dates = NULL)
+check_newxreg(newdata, xreg_names = NULL, h = 1, forc_dates = NULL)
 }
 \arguments{
 \item{xreg}{an xts matrix of named regressors.}
@@ -17,7 +17,7 @@ compared for validity.}
 
 \item{newdata}{an xts matrix of out of named sample regressors.}
 
-\item{xnames}{names of regressors used in sample.}
+\item{xreg_names}{names of regressors used in sample.}
 
 \item{h}{the forecast horizon}
 

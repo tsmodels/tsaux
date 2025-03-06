@@ -1,10 +1,11 @@
 #' Automatic Detection of Outliers, Trends Breaks and Temporary Changes
-#' 
-#' A wrapper function for \emph{tso} from the tsoutliers packages. Takes as
-#' input a univariate xts object and returns a list with an xts object with any
+#'
+#' @description
+#' A wrapper function for \emph{tso} from the \code{\link[tsoutliers]{tso}} package.
+#' Takes as input a univariate xts object and returns a list with an xts object with any
 #' identified outliers, trend breaks and/or temporary changes to be used as
 #' regressors during estimation as well initial coefficients (see details).
-#' 
+#' @details
 #' For generating future values of the identified outliers, the filter function
 #' is used with additive outliers having a filter value of 0, trend changes a
 #' value of 1, and temporary changes have value between 0 and 1. For the
@@ -13,7 +14,7 @@
 #' identification) of any outliers during the first pass. The cleaned series is
 #' then run through an stl filter (if any frequency is greater than 1) in order
 #' to deseasonalize the data (with multiple seasonality supported), after which
-#' the deseasonlized series is passed to the tso function where any additive
+#' the deseasonalized series is passed to the tso function where any additive
 #' outliers (AO), temporary shifts (TC) or level shift (LS) are identified.
 #' Additive outliers from this stage are added to any identified outliers from
 #' the initial stage. For each regressor, initial parameter values are returned
@@ -31,7 +32,7 @@
 #' breaks. For the full method, the series is directly passed to the tso
 #' function of the tsoutliers package. Finally, it should be noted that this
 #' function is still experimental, and may change in the future.
-#' 
+#'
 #' @param y a univariate xts object.
 #' @param frequency the frequency of the time series. If the frequency is 1
 #' then seasonal estimation will be turned off. Will also accept multiple
@@ -57,15 +58,15 @@
 #' the tso function, else to pass the series directly to the tso package.
 #' @param \dots any additional arguments passed to the tso functions (refer to
 #' the documentation of the tsoutliers package).
-#' @return A list with an xts outlier matrix (if any where identified) as well
+#' @returns A list with an xts outlier matrix (if any where identified) as well
 #' as a vector of initial parameter for use in the initialization of the
 #' optimizer.
 #' @export
 #' @rdname auto_regressors
 #' @author Alexios Galanos for this wrapper function.\cr Rob Hyndman for the
-#' forecast package.\cr Javier López-de-Lacalle for the tsoutliers package.
+#' forecast package.\cr Javier Lopez-de-Lacalle for the tsoutliers package.
 #' @examples
-#' 
+#'
 #' library(xts)
 #' set.seed(200)
 #' y = cumprod(c(100,(1+rnorm(100,0.01, 0.04))))
@@ -79,7 +80,7 @@
 #' y = y + y*xts(outlier1, index(y))
 #' y = y + y*xts(outlier2, index(y))
 #' # may need some tweaking of the tso options.
-#' x = auto_regressors(y, frequency = 1, sampling = "days", h = 20, 
+#' x = auto_regressors(y, frequency = 1, sampling = "days", h = 20,
 #' check.rank = TRUE, discard.cval = 4)
 #' head(x$xreg)
 #' tail(x$xreg)
@@ -87,10 +88,10 @@
 #' min(which(x$xreg[,2]==1))
 #' #plot(as.numeric(y), type = "l", ylab = "")
 #' #lines(as.numeric(yclean) + (x$xreg %*% x$init)[1:101], col = 2)
-#' 
-auto_regressors <- function(y, frequency = 1, lambda = NULL, forc_dates = NULL, sampling = NULL, h = 0, 
-                            stlm_opts = list(etsmodel = "AAN"), 
-                            auto_arima_opts = list(max.p = 1, max.q = 1, d = 1, allowdrift = FALSE), 
+#'
+auto_regressors <- function(y, frequency = 1, lambda = NULL, forc_dates = NULL, sampling = NULL, h = 0,
+                            stlm_opts = list(etsmodel = "AAN"),
+                            auto_arima_opts = list(max.p = 1, max.q = 1, d = 1, allowdrift = FALSE),
                             return_table = FALSE, method = c("sequential","full"), ...)
 {
     # missing values initial
@@ -109,7 +110,7 @@ auto_regressors <- function(y, frequency = 1, lambda = NULL, forc_dates = NULL, 
         }
         newindex <- c(index(y), forc_dates)
     } else {
-        newindex <- index(y) 
+        newindex <- index(y)
     }
     if (any(is.na(y))) {
         y <- xts(na.interp(ts(y, frequency = frequency[1])), index(y))
@@ -197,7 +198,7 @@ auto_regressors <- function(y, frequency = 1, lambda = NULL, forc_dates = NULL, 
         out_proposal <- tsoutliers(ts(y, frequency = frequency[1]))
         ynew <- y
         init_pars <- NULL
-        
+
         if (length(out_proposal$index) > 0) {
             init_pars <- c(init_pars, ynew[out_proposal$index] - out_proposal$replacements)
             names(init_pars) <- paste0("AO", out_proposal$index)
@@ -298,21 +299,21 @@ auto_regressors <- function(y, frequency = 1, lambda = NULL, forc_dates = NULL, 
             return(list(xreg = oxreg, init = init_pars))
         }
     }
-    
+
 }
 
 
 #' Automatic Cleaning of Outliers and Temporary Changes
-#' 
+#'
 #' A wrapper function for \emph{tso} from the tsoutliers packages. Takes as
 #' input a univariate xts object and returns a series decomtaminated from
 #' outliers and temporary changes.
-#' 
-#' Call the \code{\link{auto_regressors}} function to obtain the matrix of
+#'
+#' Calls the \code{\link[tsaux]{auto_regressors}} function to obtain the matrix of
 #' regressors and coefficients which are then used to decomtaminate the series.
 #' If lambda is not NULL, the series is first transformed to perform the
 #' decontamination and then back transformed afterwards.
-#' 
+#'
 #' @param y a univariate xts object.
 #' @param frequency the frequency of the time series. If the frequency is 1
 #' then seasonal estimation will be turned off. Will also accept multiple
@@ -335,13 +336,13 @@ auto_regressors <- function(y, frequency = 1, lambda = NULL, forc_dates = NULL, 
 #' @rdname auto_clean
 #' @author Alexios Galanos for this wrapper function.\cr Rob Hyndman for the
 #' forecast package.\cr Javier López-de-Lacalle for the tsoutliers package.
-auto_clean <- function(y, frequency = 1, lambda = NULL, types = c("AO","TC"), 
-                       stlm_opts = list(etsmodel = "AAN"), 
-                       auto_arima_opts = list(max.p = 1, max.q = 1, d = 1, allowdrift = FALSE), 
+auto_clean <- function(y, frequency = 1, lambda = NULL, types = c("AO","TC"),
+                       stlm_opts = list(etsmodel = "AAN"),
+                       auto_arima_opts = list(max.p = 1, max.q = 1, d = 1, allowdrift = FALSE),
                        method = c("sequential", "full"), ...)
 {
-    mod <- auto_regressors(y, frequency = frequency, lambda = lambda, forc_dates = NULL, sampling = NULL, h = 0, 
-                                       stlm_opts = stlm_opts, auto_arima_opts = auto_arima_opts, 
+    mod <- auto_regressors(y, frequency = frequency, lambda = lambda, forc_dates = NULL, sampling = NULL, h = 0,
+                                       stlm_opts = stlm_opts, auto_arima_opts = auto_arima_opts,
                                        return_table = FALSE, types = types, method = method, ...)
     if (!is.null(mod$xreg)) {
         x <- coredata(mod$xreg) %*% mod$init
@@ -361,12 +362,12 @@ auto_clean <- function(y, frequency = 1, lambda = NULL, types = c("AO","TC"),
 
 
 #' Anomaly Creation
-#' 
+#'
 #' Creates specific types of anomalies given a series.
-#' 
+#'
 #' These functions allow the generation of anomalies and may be chained
 #' together.
-#' 
+#'
 #' @aliases additive_outlier temporary_change level_shift
 #' @param y a univariate xts object or numeric series.
 #' @param time the time index at which the anomaly takes place.
@@ -377,7 +378,7 @@ auto_clean <- function(y, frequency = 1, lambda = NULL, types = c("AO","TC"),
 #' @param add whether to contaminate the series (add the anomaly to the series)
 #' else will return a matrix with the anomaly (without the effect of the
 #' parameter).
-#' @return Either the contaminated series else a matrix of the anomaly.
+#' @returns Either the contaminated series else a matrix of the anomaly.
 #' @export
 #' @rdname anomalies
 #' @author Alexios Galanos for this wrapper function.\cr

@@ -1,12 +1,10 @@
-.travis.yml
-^appveyor\.yml$
-^.git
+^\\.git$
 .DS_Store
 .vscode
-LICENSE
 README.md
+README.Rmd
 cleanup
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^\.github$
-README.Rmd
+^man/figures/
