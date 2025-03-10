@@ -72,7 +72,7 @@ general across different types of data generating mechanisms.
 
 While such spikes usually decay almost instantaneously, others may decay
 at a slower pace (temporary shifts) and some may even be permanent
-(level shifts). One generating mechanism for these anomalies if through
+(level shifts). One generating mechanism for these anomalies is through
 a recursive AR(1) filter. The figure below shows an example of how such
 anomalies can be generated with different decay rates. The *half-life*
 of the decay of such shocks can be easily derived from the theory on
