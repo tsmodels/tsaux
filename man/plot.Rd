@@ -12,7 +12,7 @@
 
 \item{y}{the type of output to plot.}
 
-\item{...}{additional parameters passed to the \code{\link{plot.zoo}} function.}
+\item{...}{additional parameters passed to the \code{\link[zoo]{plot.zoo}} function.}
 }
 \description{
 Plot Simulation Object

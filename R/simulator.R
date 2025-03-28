@@ -528,7 +528,7 @@ tsdecompose.issm.component <- function(object, ...)
 #'
 #' @param x an object of class issm.component or other supported class.
 #' @param y the type of output to plot.
-#' @param ... additional parameters passed to the \code{\link{plot.zoo}} function.
+#' @param ... additional parameters passed to the \code{\link[zoo]{plot.zoo}} function.
 #' @method plot issm.component
 #' @aliases plot
 #' @rdname plot

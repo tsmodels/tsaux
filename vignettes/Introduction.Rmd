@@ -1,5 +1,5 @@
 ---
-title: "Auxilliary Time Series Functions"
+title: "Auxiliary Time Series Functions"
 output: 
     rmarkdown::html_vignette:
         css: custom.css
@@ -12,7 +12,7 @@ bibliography: references.bib
 bibliography-style: apalike
 natbiboptions: round
 vignette: >
-  %\VignetteIndexEntry{Auxilliary Time Series Functions}
+  %\VignetteIndexEntry{Auxiliary Time Series Functions}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
