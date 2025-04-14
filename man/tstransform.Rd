@@ -8,7 +8,7 @@ tstransform(method = "box-cox", lambda = NULL, lower = 0, upper = 1, ...)
 }
 \arguments{
 \item{method}{valid methods are currently \dQuote{box-cox},
-\dQuote{logit}, \dQuote{soft-logit} and \dQuote{sigmoid}.}
+\dQuote{logit}, \dQuote{softplus-logit} and \dQuote{sigmoid}.}
 
 \item{lambda}{parameter in the Box Cox transformation.}
 
@@ -22,7 +22,7 @@ tstransform(method = "box-cox", lambda = NULL, lower = 0, upper = 1, ...)
 A list with the transform and inverse functions.
 }
 \description{
-Includes the Box Cox, logit, softplus-logit and sigmoif transforms.
+Includes the Box Cox, logit, softplus-logit and sigmoid transforms.
 Returns a list of functions for the transform and its inverse.
 }
 \author{

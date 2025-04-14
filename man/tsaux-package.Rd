@@ -8,7 +8,7 @@
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
-General purpose calendar and auxiliary functions including normalizing transformations, outlier detection and forecast metrics for time series.
+A suite of auxiliary functions that enhance time series estimation and forecasting, including a robust anomaly detection routine based on Chen and Liu (1993) \doi{10.2307/2290724} (imported and wrapped from the 'tsoutliers' package), utilities for managing calendar and time conversions, performance metrics to assess both point forecasts and distributional predictions, advanced simulation by allowing the generation of time series components—such as trend, seasonal, ARMA, irregular, and anomalies—in a modular fashion based on the innovations form of the state space model and a number of transformation methods including Box-Cox, Logit, 'Softplus-Logit' and Sigmoid.
 }
 \seealso{
 Useful links:

@@ -10,7 +10,7 @@ box_cox(lambda = NA, lower = 0, upper = 1.5, multivariate = FALSE, ...)
 \item{lambda}{the power parameters. If NA then it will automatically
 calculate the optimal parameter using the method of Guerrero (for univariate
 case) else for the multivariate case, the method of Velilla (1993) which
-implemented in the \code{car} package of John Fox. This targets a
+is implemented in the \code{car} package of John Fox. This targets a
 transformation to multivariate normality. If any of the inputs has a
 frequency other than 1, then an stl decomposition is first applied and the
 seasonal component removed prior to the estimation in order to avoid
@@ -37,9 +37,8 @@ Creates a specification for the Box Cox transformation.
 \details{
 The function returns a list of 2 functions called \dQuote{transform} and
 \dQuote{inverse} which can be called with a data object and a frequency to
-calculate the transformed values. It is meant to be used in the transform
-argument of the model specifications in the ts universe of models. The
-auto_lambda function uses the method of Guerrero(1993).
+calculate the transformed values. The auto_lambda function uses the
+method of Guerrero(1993).
 }
 \note{
 The returned transform function will take additional argument \dQuote{frequency}

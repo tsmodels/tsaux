@@ -50,15 +50,14 @@ logit <- function(lower = 0, upper = 1.0, ...)
 #'
 #' The function returns a list of 2 functions called \dQuote{transform} and
 #' \dQuote{inverse} which can be called with a data object and a frequency to
-#' calculate the transformed values. It is meant to be used in the transform
-#' argument of the model specifications in the ts universe of models. The
-#' auto_lambda function uses the method of Guerrero(1993).
+#' calculate the transformed values. The auto_lambda function uses the
+#' method of Guerrero(1993).
 #' @name box_cox
 #' @aliases box_cox
 #' @param lambda the power parameters. If NA then it will automatically
 #' calculate the optimal parameter using the method of Guerrero (for univariate
 #' case) else for the multivariate case, the method of Velilla (1993) which
-#' implemented in the \code{car} package of John Fox. This targets a
+#' is implemented in the \code{car} package of John Fox. This targets a
 #' transformation to multivariate normality. If any of the inputs has a
 #' frequency other than 1, then an stl decomposition is first applied and the
 #' seasonal component removed prior to the estimation in order to avoid
@@ -352,11 +351,11 @@ sigmoid_inverse <- function(x, lower = 0, upper = 1) {
 
 #' General transformation function
 #'
-#' Includes the Box Cox, logit, softplus-logit and sigmoif transforms.
+#' Includes the Box Cox, logit, softplus-logit and sigmoid transforms.
 #' Returns a list of functions for the transform and its inverse.
 #'
 #' @param method valid methods are currently \dQuote{box-cox},
-#' \dQuote{logit}, \dQuote{soft-logit} and \dQuote{sigmoid}.
+#' \dQuote{logit}, \dQuote{softplus-logit} and \dQuote{sigmoid}.
 #' @param lambda parameter in the Box Cox transformation.
 #' @param lower lower bound for the transformations.
 #' @param upper upper bound for the transformations.

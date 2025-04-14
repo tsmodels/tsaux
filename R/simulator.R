@@ -530,6 +530,7 @@ tsdecompose.issm.component <- function(object, ...)
 #' @param y the type of output to plot.
 #' @param ... additional parameters passed to the \code{\link[zoo]{plot.zoo}} function.
 #' @method plot issm.component
+#' @returns a plot of the simulated series or multiple plots of the simulation components.
 #' @aliases plot
 #' @rdname plot
 #' @export
@@ -557,6 +558,11 @@ plot.issm.component <- function(x, y = c("simulated","components"), ...)
 #' @param y not used.
 #' @param type character indicating the type of plotting.
 #' @param ... additional parameters passed to the lines function.
+#' @details
+#' Overlays the simulated series from the object (x), and is meant to be
+#' used when plotting different simulations from the same series
+#' for comparison.
+#' @returns a line plot.
 #' @method lines issm.component
 #' @aliases lines
 #' @rdname lines
@@ -576,7 +582,7 @@ lines.issm.component <- function(x, y = NULL, type = "l", ...)
 #' Anomaly Component
 #'
 #' @param x an object of class issm.component or other supported class.
-#' @param time the numeric index of when the anomaly occurs. If NULL, a ranom
+#' @param time the numeric index of when the anomaly occurs. If NULL, a random
 #' time will be chosen.
 #' @param delta the autoregressive component determining the type of anomaly. A
 #' value of zero results in an additive outlier, a value of 1 in a level shift
@@ -585,7 +591,7 @@ lines.issm.component <- function(x, y = NULL, type = "l", ...)
 #' value of 1 means that the anomaly will jump by 100 percent compared to the
 #' data series.
 #' @param ... additional parameters.
-#' @return An object of class issm.component updated with the anomaly
+#' @returns An object of class issm.component updated with the anomaly
 #' component.
 #' @method add_anomaly issm.component
 #' @aliases add_anomaly

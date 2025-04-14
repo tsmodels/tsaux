@@ -16,6 +16,14 @@
 
 \item{...}{additional parameters passed to the lines function.}
 }
+\value{
+a line plot.
+}
 \description{
 Add Connected Line Segments to a Simulation Object
+}
+\details{
+Overlays the simulated series from the object (x), and is meant to be
+used when plotting different simulations from the same series
+for comparison.
 }

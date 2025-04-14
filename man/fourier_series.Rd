@@ -2,7 +2,7 @@
 % Please edit documentation in R/seasonal.R
 \name{fourier_series}
 \alias{fourier_series}
-\title{Fourier terms for modelling seasonality}
+\title{Fourier terms for modeling seasonality}
 \usage{
 fourier_series(dates, period = NULL, K = NULL)
 }

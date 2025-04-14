@@ -61,7 +61,7 @@ as a vector of initial parameter for use in the initialization of the
 optimizer.
 }
 \description{
-A wrapper function for \emph{tso} from the \code{\link[tsoutliers]{tso}} package.
+A wrapper function for function \code{\link[tsoutliers]{tso}} from the tsoutliers package.
 Takes as input a univariate xts object and returns a list with an xts object with any
 identified outliers, trend breaks and/or temporary changes to be used as
 regressors during estimation as well initial coefficients (see details).

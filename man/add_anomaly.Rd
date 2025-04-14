@@ -14,7 +14,7 @@ add_anomaly(x, ...)
 
 \item{...}{additional parameters.}
 
-\item{time}{the numeric index of when the anomaly occurs. If NULL, a ranom
+\item{time}{the numeric index of when the anomaly occurs. If NULL, a random
 time will be chosen.}
 
 \item{delta}{the autoregressive component determining the type of anomaly. A

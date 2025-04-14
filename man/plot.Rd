@@ -14,6 +14,9 @@
 
 \item{...}{additional parameters passed to the \code{\link[zoo]{plot.zoo}} function.}
 }
+\value{
+a plot of the simulated series or multiple plots of the simulation components.
+}
 \description{
 Plot Simulation Object
 }

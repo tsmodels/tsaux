@@ -57,7 +57,7 @@ seasonality_test <- function(x, frequency = NULL){
 
 
 
-#' Fourier terms for modelling seasonality
+#' Fourier terms for modeling seasonality
 #'
 #' Returns a matrix containing terms from a Fourier series, up to order K
 #'

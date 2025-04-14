@@ -45,13 +45,13 @@ the documentation of the tsoutliers package).}
 A xts vector.
 }
 \description{
-A wrapper function for \emph{tso} from the tsoutliers packages. Takes as
-input a univariate xts object and returns a series decomtaminated from
+A wrapper function for \code{\link[tsoutliers]{tso}} from the tsoutliers package.
+Takes as input a univariate xts object and returns a series decontaminated from
 outliers and temporary changes.
 }
 \details{
 Calls the \code{\link[tsaux]{auto_regressors}} function to obtain the matrix of
-regressors and coefficients which are then used to decomtaminate the series.
+regressors and coefficients which are then used to decontaminate the series.
 If lambda is not NULL, the series is first transformed to perform the
 decontamination and then back transformed afterwards.
 }

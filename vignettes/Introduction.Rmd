@@ -452,7 +452,7 @@ simulator_functions |> kable(format = "html", escape = FALSE, align = "l", capti
   column_spec(2, width = "30%")  # Adjust equation column width
 ```
 
-A short demostration follows:
+A short demonstration follows:
 
 ```{r,highlight=TRUE,fig.width=6, fig.height=6}
 set.seed(154)

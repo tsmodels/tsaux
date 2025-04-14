@@ -1,7 +1,7 @@
 #' Automatic Detection of Outliers, Trends Breaks and Temporary Changes
 #'
 #' @description
-#' A wrapper function for \emph{tso} from the \code{\link[tsoutliers]{tso}} package.
+#' A wrapper function for function \code{\link[tsoutliers]{tso}} from the tsoutliers package.
 #' Takes as input a univariate xts object and returns a list with an xts object with any
 #' identified outliers, trend breaks and/or temporary changes to be used as
 #' regressors during estimation as well initial coefficients (see details).
@@ -305,12 +305,12 @@ auto_regressors <- function(y, frequency = 1, lambda = NULL, forc_dates = NULL, 
 
 #' Automatic Cleaning of Outliers and Temporary Changes
 #'
-#' A wrapper function for \emph{tso} from the tsoutliers packages. Takes as
-#' input a univariate xts object and returns a series decomtaminated from
+#' A wrapper function for \code{\link[tsoutliers]{tso}} from the tsoutliers package.
+#' Takes as input a univariate xts object and returns a series decontaminated from
 #' outliers and temporary changes.
 #'
 #' Calls the \code{\link[tsaux]{auto_regressors}} function to obtain the matrix of
-#' regressors and coefficients which are then used to decomtaminate the series.
+#' regressors and coefficients which are then used to decontaminate the series.
 #' If lambda is not NULL, the series is first transformed to perform the
 #' decontamination and then back transformed afterwards.
 #'
